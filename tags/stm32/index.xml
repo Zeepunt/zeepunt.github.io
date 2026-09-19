@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>STM32 on Zeepunt 日常随笔</title><link>https://zeepunt.github.io/tags/stm32/</link><description>Recent content in STM32 on Zeepunt 日常随笔</description><generator>Hugo -- 0.152.1</generator><language>zh-cn</language><lastBuildDate>Thu, 17 Sep 2026 17:48:46 +0800</lastBuildDate><atom:link href="https://zeepunt.github.io/tags/stm32/index.xml" rel="self" type="application/rss+xml"/><item><title>【STM32】从零开始的配置过程：二</title><link>https://zeepunt.github.io/article/stm32/stm32%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B%E4%BA%8C/</link><pubDate>Thu, 17 Sep 2026 17:48:46 +0800</pubDate><guid>https://zeepunt.github.io/article/stm32/stm32%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B%E4%BA%8C/</guid><description>&lt;h1 id="freertos"&gt;FreeRTOS&lt;/h1&gt;
+&lt;p&gt;FreeRTOS 是一个开源的 RTOS（实时操作系统）。&lt;/p&gt;
+&lt;p&gt;FreeRTOS 开源社区包括很多功能组件，我们一般说的 FreeRTOS 指的是 &lt;a href="https://github.com/FreeRTOS/FreeRTOS-Kernel"&gt;FreeRTOS-Kernel&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;这里我们需要的文件如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── include &lt;span class="c1"&gt;# 里面的所有头文件 (.h)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── portable
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── GCC &lt;span class="c1"&gt;# 适用于 armclang 和 gcc 编译器&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ └── ARM_CM4F
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ ├── port.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ └── portmacro.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ └── MemMang &lt;span class="c1"&gt;# 内存管理&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ └── heap_4.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── croutine.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── event_groups.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── list.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── queue.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── stream_buffer.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── tasks.c
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└── timers.c
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="动态内存分配"&gt;动态内存分配&lt;/h2&gt;
+&lt;p&gt;我们使用的 heap_4 算法，其内部实现的策略如下：&lt;/p&gt;</description></item><item><title>【STM32】从零开始的配置过程：一</title><link>https://zeepunt.github.io/article/stm32/stm32%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B%E4%B8%80/</link><pubDate>Sat, 12 Sep 2026 23:21:53 +0800</pubDate><guid>https://zeepunt.github.io/article/stm32/stm32%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B%E4%B8%80/</guid><description>&lt;h1 id="环境"&gt;环境&lt;/h1&gt;
+&lt;h2 id="芯片"&gt;芯片&lt;/h2&gt;
+&lt;p&gt;STM32L475VETx&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;处理器：Cortex-M4F&lt;/li&gt;
+&lt;li&gt;架构：ARMv7E-M&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里我们需要清楚其相关资源（在后续步骤中会使用到）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;SRAM1&lt;/p&gt;
+&lt;p&gt;大小是 96 KB（0x0001 8000），起始地址是 0x2000 0000。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;SRAM2&lt;/p&gt;
+&lt;p&gt;大小是 32 KB（0x0000 8000），起始地址是 0x1000 0000。&lt;/p&gt;
+&lt;p&gt;可以在 Standby 模式下保留数据。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Flash&lt;/p&gt;
+&lt;p&gt;大小是 512 KB（0x0008 0000），起始地址是 0x0800 0000。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="开发板"&gt;开发板&lt;/h2&gt;
+&lt;p&gt;正点原子 Pandora IOT 开发板。&lt;/p&gt;
+&lt;p&gt;板载有三色 LED，我们可以用它进行测试（低电平有效）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Red：PE7&lt;/li&gt;
+&lt;li&gt;Green：PE8&lt;/li&gt;
+&lt;li&gt;Blue：PE9&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="依赖组件"&gt;依赖组件&lt;/h1&gt;
+&lt;h2 id="cmsis"&gt;CMSIS&lt;/h2&gt;
+&lt;p&gt;CMSIS（Common Microcontroller Software Interface Standard，通用微控制器软件接口标准），是 ARM 公司主导制定的一套开源软件标准。&lt;/p&gt;
+&lt;p&gt;当前最新的版本是 &lt;a href="https://github.com/ARM-software/CMSIS_6"&gt;CMSIS_6&lt;/a&gt;，这里我们需要的文件如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└── CMSIS
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;    └── Core
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;       └── Include
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── m-profile
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ ├── armv7m_mpu.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ ├── cmsis_armclang_m.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └── cmsis_gcc_m.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── cmsis_armclang.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── cmsis_compiler.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── cmsis_gcc.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── cmsis_version.h
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └── core_cm4.h
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;blockquote&gt;
+&lt;p&gt;如果是 Cortex-M7 架构，m-profile 目录里面还需要 &lt;code&gt;armv7m_cachel1.h&lt;/code&gt; 这个头文件。&lt;/p&gt;</description></item></channel></rss>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Rockchip on Zeepunt 日常随笔</title><link>https://zeepunt.github.io/tags/rockchip/</link><description>Recent content in Rockchip on Zeepunt 日常随笔</description><generator>Hugo -- 0.152.1</generator><language>zh-cn</language><lastBuildDate>Mon, 01 Jun 2026 22:42:12 +0800</lastBuildDate><atom:link href="https://zeepunt.github.io/tags/rockchip/index.xml" rel="self" type="application/rss+xml"/><item><title>【RK3568】一、部署 Qwen 3.5 2B 模型：资源介绍</title><link>https://zeepunt.github.io/article/rockchip/rk3568%E4%B8%80%E9%83%A8%E7%BD%B2-qwen-3.5-2b-%E6%A8%A1%E5%9E%8B%E8%B5%84%E6%BA%90%E4%BB%8B%E7%BB%8D/</link><pubDate>Mon, 01 Jun 2026 22:42:12 +0800</pubDate><guid>https://zeepunt.github.io/article/rockchip/rk3568%E4%B8%80%E9%83%A8%E7%BD%B2-qwen-3.5-2b-%E6%A8%A1%E5%9E%8B%E8%B5%84%E6%BA%90%E4%BB%8B%E7%BB%8D/</guid><description>&lt;h1 id="一qwen35-2b"&gt;一、Qwen3.5-2B&lt;/h1&gt;
+&lt;p&gt;&lt;a href="https://huggingface.co/Qwen/Qwen3.5-2B"&gt;Hugging Face - Qwen3.5-2B&lt;/a&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;参数：2B（2 Billion，20 亿）。&lt;/li&gt;
+&lt;li&gt;参数类型：F32（Float32）/ BF16（BFloat16）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="二tops"&gt;二、TOPS&lt;/h1&gt;
+&lt;p&gt;TOPS，Tera Operations Per Second，每秒万亿次操作。&lt;/p&gt;
+&lt;h1 id="三rk3568"&gt;三、RK3568&lt;/h1&gt;
+&lt;h2 id="芯片"&gt;芯片&lt;/h2&gt;
+&lt;p&gt;RK3568 主要参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;CPU：Quad‑core Arm® Cortex®‑A55 (ARMv8) 64‑bit @ 2.0GHz&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GPU：Mali™ G52 GPU&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;NPU：1TOPS @ INT8&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="开发板"&gt;开发板&lt;/h2&gt;
+&lt;p&gt;Rock 3A 主要参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;DDR：4GB 32bits LPDDR4&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

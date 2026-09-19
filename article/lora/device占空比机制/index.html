@@ -1,0 +1,780 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>【Node】占空比机制 | Zeepunt 日常随笔</title><meta name=keywords content="LoRaWAN"><meta name=description content="
+协议栈代码：LoRaMac-node v4.7.0
+参考文档
+
+《RP002-1.0.4 LoRaWAN® Regional Parameters》
+《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》
+
+
+
+一、占空比
+1. 区域和占空比
+
+参考《RP002-1.0.4 LoRaWAN® Regional Parameters》1.3 Regional Parameters Summary Tables
+
+有些 Region 是有占空比限制，有些 Region 是没有占空比限制的。
+对于动态频点的 Region：
+
+对于固定频点的 Region：
+
+2. 占空比规则
+
+参考《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》7 Retransmissions Backoff
+
+
+3. 占空比代码
+占空比代码涉及到两个概念：
+
+
+时间信用（Time Credit）
+不同的时间段内，都有一个最大可花费的时间信用，每次发送数据都会消耗一笔时间信用，当时间信用不满足下一次发送的花费时，则不允许发送数据。
+
+
+观察时间（Observation Time）
+当出现当时间信用不满足下一次发送的花费这种情况时，则会计算到达下一个时间段的观察时间，在下一个时间段内所花费的时间信息会清零。
+
+
+3.1. 占空比参数
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+
+
+/* src/mac/region/RegionCommon.c */
+
+/* Duty Cycle 1% */
+#define BACKOFF_DC_1_HOUR                          100
+
+#define BACKOFF_DUTY_CYCLE_1_HOUR_IN_S             3600
+#define BACKOFF_DUTY_CYCLE_10_HOURS_IN_S           (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 10))
+#define BACKOFF_DUTY_CYCLE_24_HOURS_IN_S           (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24))
+#define BACKOFF_24_HOURS_IN_S                      (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24)
+
+#ifndef DUTY_CYCLE_TIME_PERIOD
+/* Default duty cycle observation time period is 1 hour (3600000 ms) according to ETSI. */
+#define DUTY_CYCLE_TIME_PERIOD                     3600000
+#endif
+
+#ifndef DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H
+/* Time credits for the join backoff algorithm for the 24H period. */
+#define DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H    870000
+#endif
+
+
+3.2. 更新占空比最大值
+更新时间信用和观察时间："><meta name=author content><link rel=canonical href=https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/><link crossorigin=anonymous href=/assets/css/stylesheet.36916a4e109699390409b213554982c9e53fdaa3b37bb1fce07cd34f3e7a5af9.css integrity="sha256-NpFqThCWmTkECbITVUmCyeU/2qOze7H84HzTTz56Wvk=" rel="preload stylesheet" as=style><link rel=icon href=https://zeepunt.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://zeepunt.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://zeepunt.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://zeepunt.github.io/apple-touch-icon.png><link rel=mask-icon href=https://zeepunt.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script defer src=https://cn.vercount.one/js></script><meta property="og:url" content="https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/"><meta property="og:site_name" content="Zeepunt 日常随笔"><meta property="og:title" content="【Node】占空比机制"><meta property="og:description" content=" 协议栈代码：LoRaMac-node v4.7.0 参考文档 《RP002-1.0.4 LoRaWAN® Regional Parameters》 《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》 一、占空比 1. 区域和占空比 参考《RP002-1.0.4 LoRaWAN® Regional Parameters》1.3 Regional Parameters Summary Tables
+有些 Region 是有占空比限制，有些 Region 是没有占空比限制的。
+对于动态频点的 Region：
+对于固定频点的 Region：
+2. 占空比规则 参考《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》7 Retransmissions Backoff
+3. 占空比代码 占空比代码涉及到两个概念：
+时间信用（Time Credit）
+不同的时间段内，都有一个最大可花费的时间信用，每次发送数据都会消耗一笔时间信用，当时间信用不满足下一次发送的花费时，则不允许发送数据。
+观察时间（Observation Time）
+当出现当时间信用不满足下一次发送的花费这种情况时，则会计算到达下一个时间段的观察时间，在下一个时间段内所花费的时间信息会清零。
+3.1. 占空比参数 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 /* src/mac/region/RegionCommon.c */ /* Duty Cycle 1% */ #define BACKOFF_DC_1_HOUR 100 #define BACKOFF_DUTY_CYCLE_1_HOUR_IN_S 3600 #define BACKOFF_DUTY_CYCLE_10_HOURS_IN_S (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 10)) #define BACKOFF_DUTY_CYCLE_24_HOURS_IN_S (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24)) #define BACKOFF_24_HOURS_IN_S (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24) #ifndef DUTY_CYCLE_TIME_PERIOD /* Default duty cycle observation time period is 1 hour (3600000 ms) according to ETSI. */ #define DUTY_CYCLE_TIME_PERIOD 3600000 #endif #ifndef DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H /* Time credits for the join backoff algorithm for the 24H period. */ #define DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H 870000 #endif 3.2. 更新占空比最大值 更新时间信用和观察时间："><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="article"><meta property="article:published_time" content="2025-11-11T21:45:32+08:00"><meta property="article:modified_time" content="2025-11-11T21:45:32+08:00"><meta property="article:tag" content="LoRaWAN"><meta name=twitter:card content="summary"><meta name=twitter:title content="【Node】占空比机制"><meta name=twitter:description content="
+协议栈代码：LoRaMac-node v4.7.0
+参考文档
+
+《RP002-1.0.4 LoRaWAN® Regional Parameters》
+《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》
+
+
+
+一、占空比
+1. 区域和占空比
+
+参考《RP002-1.0.4 LoRaWAN® Regional Parameters》1.3 Regional Parameters Summary Tables
+
+有些 Region 是有占空比限制，有些 Region 是没有占空比限制的。
+对于动态频点的 Region：
+
+对于固定频点的 Region：
+
+2. 占空比规则
+
+参考《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》7 Retransmissions Backoff
+
+
+3. 占空比代码
+占空比代码涉及到两个概念：
+
+
+时间信用（Time Credit）
+不同的时间段内，都有一个最大可花费的时间信用，每次发送数据都会消耗一笔时间信用，当时间信用不满足下一次发送的花费时，则不允许发送数据。
+
+
+观察时间（Observation Time）
+当出现当时间信用不满足下一次发送的花费这种情况时，则会计算到达下一个时间段的观察时间，在下一个时间段内所花费的时间信息会清零。
+
+
+3.1. 占空比参数
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+
+
+/* src/mac/region/RegionCommon.c */
+
+/* Duty Cycle 1% */
+#define BACKOFF_DC_1_HOUR                          100
+
+#define BACKOFF_DUTY_CYCLE_1_HOUR_IN_S             3600
+#define BACKOFF_DUTY_CYCLE_10_HOURS_IN_S           (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 10))
+#define BACKOFF_DUTY_CYCLE_24_HOURS_IN_S           (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24))
+#define BACKOFF_24_HOURS_IN_S                      (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24)
+
+#ifndef DUTY_CYCLE_TIME_PERIOD
+/* Default duty cycle observation time period is 1 hour (3600000 ms) according to ETSI. */
+#define DUTY_CYCLE_TIME_PERIOD                     3600000
+#endif
+
+#ifndef DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H
+/* Time credits for the join backoff algorithm for the 24H period. */
+#define DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H    870000
+#endif
+
+
+3.2. 更新占空比最大值
+更新时间信用和观察时间："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Articles","item":"https://zeepunt.github.io/article/"},{"@type":"ListItem","position":2,"name":"【Node】占空比机制","item":"https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"【Node】占空比机制","name":"【Node】占空比机制","description":" 协议栈代码：LoRaMac-node v4.7.0 参考文档 《RP002-1.0.4 LoRaWAN® Regional Parameters》 《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》 一、占空比 1. 区域和占空比 参考《RP002-1.0.4 LoRaWAN® Regional Parameters》1.3 Regional Parameters Summary Tables\n有些 Region 是有占空比限制，有些 Region 是没有占空比限制的。\n对于动态频点的 Region：\n对于固定频点的 Region：\n2. 占空比规则 参考《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》7 Retransmissions Backoff\n3. 占空比代码 占空比代码涉及到两个概念：\n时间信用（Time Credit）\n不同的时间段内，都有一个最大可花费的时间信用，每次发送数据都会消耗一笔时间信用，当时间信用不满足下一次发送的花费时，则不允许发送数据。\n观察时间（Observation Time）\n当出现当时间信用不满足下一次发送的花费这种情况时，则会计算到达下一个时间段的观察时间，在下一个时间段内所花费的时间信息会清零。\n3.1. 占空比参数 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 /* src/mac/region/RegionCommon.c */ /* Duty Cycle 1% */ #define BACKOFF_DC_1_HOUR 100 #define BACKOFF_DUTY_CYCLE_1_HOUR_IN_S 3600 #define BACKOFF_DUTY_CYCLE_10_HOURS_IN_S (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 10)) #define BACKOFF_DUTY_CYCLE_24_HOURS_IN_S (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24)) #define BACKOFF_24_HOURS_IN_S (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24) #ifndef DUTY_CYCLE_TIME_PERIOD /* Default duty cycle observation time period is 1 hour (3600000 ms) according to ETSI. */ #define DUTY_CYCLE_TIME_PERIOD 3600000 #endif #ifndef DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H /* Time credits for the join backoff algorithm for the 24H period. */ #define DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H 870000 #endif 3.2. 更新占空比最大值 更新时间信用和观察时间：\n","keywords":["LoRaWAN"],"articleBody":" 协议栈代码：LoRaMac-node v4.7.0 参考文档 《RP002-1.0.4 LoRaWAN® Regional Parameters》 《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》 一、占空比 1. 区域和占空比 参考《RP002-1.0.4 LoRaWAN® Regional Parameters》1.3 Regional Parameters Summary Tables\n有些 Region 是有占空比限制，有些 Region 是没有占空比限制的。\n对于动态频点的 Region：\n对于固定频点的 Region：\n2. 占空比规则 参考《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》7 Retransmissions Backoff\n3. 占空比代码 占空比代码涉及到两个概念：\n时间信用（Time Credit）\n不同的时间段内，都有一个最大可花费的时间信用，每次发送数据都会消耗一笔时间信用，当时间信用不满足下一次发送的花费时，则不允许发送数据。\n观察时间（Observation Time）\n当出现当时间信用不满足下一次发送的花费这种情况时，则会计算到达下一个时间段的观察时间，在下一个时间段内所花费的时间信息会清零。\n3.1. 占空比参数 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 /* src/mac/region/RegionCommon.c */ /* Duty Cycle 1% */ #define BACKOFF_DC_1_HOUR 100 #define BACKOFF_DUTY_CYCLE_1_HOUR_IN_S 3600 #define BACKOFF_DUTY_CYCLE_10_HOURS_IN_S (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 10)) #define BACKOFF_DUTY_CYCLE_24_HOURS_IN_S (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24)) #define BACKOFF_24_HOURS_IN_S (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24) #ifndef DUTY_CYCLE_TIME_PERIOD /* Default duty cycle observation time period is 1 hour (3600000 ms) according to ETSI. */ #define DUTY_CYCLE_TIME_PERIOD 3600000 #endif #ifndef DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H /* Time credits for the join backoff algorithm for the 24H period. */ #define DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H 870000 #endif 3.2. 更新占空比最大值 更新时间信用和观察时间：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 /* src/mac/region/RegionCommon.c */ static uint16_t UpdateTimeCredits(Band_t *band, bool joined, bool dutyCycleEnabled, bool lastTxIsJoinRequest, SysTime_t elapsedTimeSinceStartup, TimerTime_t currentTime, TimerTime_t lastBandUpdateTime) { /* 计算当前时间段的占空比 */ uint16_t dutyCycle = SetMaxTimeCredits(band, joined, elapsedTimeSinceStartup, dutyCycleEnabled, lastTxIsJoinRequest); /* 观察时间默认是 1 小时 */ TimerTime_t observation = DUTY_CYCLE_TIME_PERIOD; /* 如果当前还未入网, 则根据占空比的规则来更新观察时间 */ if (joined == false) { if (elapsedTimeSinceStartup.Seconds \u003c BACKOFF_DUTY_CYCLE_1_HOUR_IN_S) { observation = BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 1000; } else if (elapsedTimeSinceStartup.Seconds \u003c BACKOFF_DUTY_CYCLE_10_HOURS_IN_S) { observation = (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S * 1000); } else { observation = (BACKOFF_DUTY_CYCLE_24_HOURS_IN_S * 1000); } } /** * 1. 传进来的 lastBandUpdateTime 是当前时间和 band-\u003eLastBandUpdateTime 的时间间隔 * 这里表示时间间隔已经经过了 observation 观察时间, 需要重新更新时间信用 * 2. 观察时间 observation 和 band-\u003eLastMaxCreditAssignTime 不一样 * 这里表示由于时间段的不同, 需要更新观察时间 * 3. band-\u003eLastBandUpdateTime 表示的第一次更新时间信用和观察时间 */ if ((observation \u003c= lastBandUpdateTime) || (band-\u003eLastMaxCreditAssignTime != observation) || (band-\u003eLastBandUpdateTime == 0)) { /* 更新当前 band 的 MaxTimeCredits / TimeCredits / LastMaxCreditAssignTime */ band-\u003eTimeCredits = band-\u003eMaxTimeCredits; band-\u003eLastBandUpdateTime = currentTime; band-\u003eLastMaxCreditAssignTime = observation; } return dutyCycle; } 计算最大的时间信用：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 /* src/mac/region/RegionCommon.c */ static uint16_t SetMaxTimeCredits(Band_t *band, bool joined, SysTime_t elapsedTimeSinceStartup, bool dutyCycleEnabled, bool lastTxIsJoinRequest) { uint16_t dutyCycle = band-\u003eDCycle; /* 时间信用最大值默认是 1 小时 */ TimerTime_t maxCredits = DUTY_CYCLE_TIME_PERIOD; dutyCycle = GetDutyCycle(band, joined, elapsedTimeSinceStartup); if (joined == false) { /* 当前还未入网 */ if (elapsedTimeSinceStartup.Seconds \u003c BACKOFF_DUTY_CYCLE_1_HOUR_IN_S) { /* 0 \u003c t \u003c 0+1 */ maxCredits = DUTY_CYCLE_TIME_PERIOD; } else if (elapsedTimeSinceStartup.Seconds \u003c BACKOFF_DUTY_CYCLE_10_HOURS_IN_S) { /* 0+1 \u003c t \u003c 0+11 */ maxCredits = DUTY_CYCLE_TIME_PERIOD; } else { /* 0+11 + (N x 24 hours) \u003c t \u003c 0 + 35 + (N x 24 hours) */ maxCredits = DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H; } } else { /* 当前已入网 */ if (dutyCycleEnabled == false) { /* 如果关掉了占空比, 则可以任意发送数据, 不受占空比控制 */ band-\u003eTimeCredits = maxCredits; } } /* 获取当前 band 的时间信用 (TimeCredits) 最大值 */ band-\u003eMaxTimeCredits = maxCredits; return dutyCycle; } static uint16_t GetDutyCycle(Band_t *band, bool joined, SysTime_t elapsedTimeSinceStartup) { /* 实际的占空比取决于 band 的配置参数 DCycle */ uint16_t dutyCycle = band-\u003eDCycle; if (joined == false) { uint16_t joinDutyCycle = BACKOFF_DC_1_HOUR; dutyCycle = MAX(dutyCycle, joinDutyCycle); } if (dutyCycle == 0) { /* 如果是无效的值, 则设为默认值 1, 表示 100.0 % */ dutyCycle = 1; } return dutyCycle; } 3.3. 使用占空比 数据发送前，计算本次发送所花费的时间信用是否满足条件：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 /* src/mac/region/RegionCommon.c */ TimerTime_t RegionCommonUpdateBandTimeOff(bool joined, Band_t *bands, uint8_t nbBands, bool dutyCycleEnabled, bool lastTxIsJoinRequest, SysTime_t elapsedTimeSinceStartup, TimerTime_t expectedTimeOnAir) { /* 默认值是 (uint32_t)~0, 即 0xFFFFFFFF */ TimerTime_t minTimeToWait = TIMERTIME_T_MAX; ... /* 检测每一个 band */ for (uint8_t i = 0; i \u003c nbBands; i++) { /* 上一次调用 UpdateTimeCredits 到当前的时间间隔 */ TimerTime_t elapsedTime = TimerGetElapsedTime(bands[i].LastBandUpdateTime); dutyCycle = UpdateTimeCredits(\u0026bands[i], joined, dutyCycleEnabled, lastTxIsJoinRequest, elapsedTimeSinceStartup, currentTime, elapsedTime); /* 本次发送预计花费的 TimeCredits */ creditCosts = expectedTimeOnAir * dutyCycle; /* 如果本次发送花费的 TimeCredits 还在剩余范围, 则允许在该 band 发送 */ if ((bands[i].TimeCredits \u003e creditCosts) || ((dutyCycleEnabled == false) \u0026\u0026 (joined == true))) { bands[i].ReadyForTransmission = true; validBands++; } else { bands[i].ReadyForTransmission = false; if (bands[i].MaxTimeCredits \u003e creditCosts) { TimerTime_t observationTimeDiff = 0; /* 当前时间段内的时间信用已用完, 则使用观察时间 LastMaxCreditAssignTime 减去当前的时间间隔 */ if (bands[i].LastMaxCreditAssignTime \u003e= elapsedTime) { observationTimeDiff = bands[i].LastMaxCreditAssignTime - elapsedTime; } /* 取较小的值 */ minTimeToWait = MIN(minTimeToWait, observationTimeDiff); validBands++; } } } ... } 数据发送完成后：\n1 2 3 4 5 6 7 8 9 10 11 12 13 /* src/mac/region/RegionCommon.c */ void RegionCommonSetBandTxDone(Band_t *band, TimerTime_t lastTxAirTime, bool joined, SysTime_t elapsedTimeSinceStartup) { uint16_t dutyCycle = GetDutyCycle(band, joined, elapsedTimeSinceStartup); if (band-\u003eTimeCredits \u003e (lastTxAirTime * dutyCycle)) { /* 减去当前发送所花费的 TimeCredits */ band-\u003eTimeCredits -= (lastTxAirTime * dutyCycle); } else { band-\u003eTimeCredits = 0; } } 3.4. 结论 一个 Region 会有一个或多个 Band，对于每一个 Band，都会维护四个参数：\nTimeCredits\n当前时间段内可用的时间信用。\nMaxTimeCredits\n当前时间段内最大的时间信用。\nLastBandUpdateTime\n当前 Band 参数最后更新的时间。\nLastMaxCreditAssignTime\n当前 Band 的观察时间。\n更新参数的条件：\n上一次记录的 LastBandUpdateTime 到当前的时间间隔已经超出了本次计算得到的观察时间 observation。 上一次记录的 LastMaxCreditAssignTime 和本次计算得到的观察时间 observation 不一致。 第一次更新参数。 每次发送前都会计算本次发送所要花费的时间信用 creditCosts，如果当前可用的时间信用 TimeCredits 不够时：\n如果是立即发送的话，则取消本次发送 如果支持延时发送的话，则在下一个时间阶段再重新发送。 每次发送成功后，都会更新当前可用的时间信用 TimeCredits。\n如果当前设备未入网的话，观察时间分为三个阶段，每个阶段的观察时间都不一样：\n前 1 小时内 第 1 个小时到第 11 个小时的期间 超过第 11 个小时后 如果当前设备已经入网，那么观察时间默认是 1 小时。\n如果当前设备未入网的话，最大时间信用分为三个阶段，每个阶段的观察时间都不一样：\n前 1 小时内 第 1 个小时到第 11 个小时的期间 超过第 11 个小时后 如果当前设备已经入网，则最大时间信用默认是 1 小时。如果此时关闭了占空比（dutyCycleEnabled 为 false），那么可用的时间信用也是 1 小时（表示单位时间内可用任意发送）。\n每个 Region 里面的每一个 Band 都已经预设好了占空比。这个占空比主要是用于计算本次发送所要花费的时间信用、发送完成后更新当前可用的时间信用。\n二、示例 1. EU868 1.1. 配置 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 /* src/mac/region/RegionEU868.h */ #define EU868_MAX_NB_BANDS 6 /* Band = {DutyCycle, TxMaxPower, LastBandUpdateTime, LastMaxCreditAssignTime, TimeCredits, MaxTimeCredits, ReadyForTransmission} */ #define EU868_BAND0 {100 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} // 1.0 % #define EU868_BAND1 {100 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} // 1.0 % #define EU868_BAND2 {1000, EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} // 0.1 % #define EU868_BAND3 {10 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} // 10.0 % #define EU868_BAND4 {100 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} // 1.0 % #define EU868_BAND5 {1000, EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} // 0.1 % /* Channel = {Frequency [Hz], RX1 Frequency [Hz], {((DrMax \u003c\u003c 4) | DrMin)}, Band} */ #define EU868_LC1 {868100000, 0, {((DR_5 \u003c\u003c 4) | DR_0)}, 1} #define EU868_LC2 {868300000, 0, {((DR_5 \u003c\u003c 4) | DR_0)}, 1} #define EU868_LC3 {868500000, 0, {((DR_5 \u003c\u003c 4) | DR_0)}, 1} #define EU868_JOIN_CHANNELS (uint16_t)(LC(1) | LC(2) | LC(3)) EU868 有 6 个 Band，每个 Band 的占空比都不一样。\nEU868 默认的入网频点是 868.1 / 868.3 / 868.5 MHz，由于这三个频点放在 Band1 里面，那么其占空比是 1%\n1.2. 频繁入网受限 由于入网时的占空比是不可以关闭的，那么当频繁入网时，就会出现超出占空比后不再发送的情况。\n这里测试时的 DUTY_CYCLE_TIME_PERIOD 为 1800000，即 18s。\n对于前 1 个小时的频繁入网（假如入网不成功），band 1 的最大时间信用 MaxTimeCredits 是 1800000，可用的时间信用 TimeCredits 也为 1800000。 当准备发送 Join-Request，会计算本次要花费的时间信用 creditCosts，如果 TimeCredits \u003e creditCosts，则允许发送。 当 Join-Request 发送完成后，会在 TimeCredits 里面扣掉本次发送花费的时间信用。 如此循环，直到 TimeCredits 不满足下一次发送的花费。\n测试打印如下：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 # 第一次入网 ## 发送前 cur TimeCredits: 1800000 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 1651700 # 第二次入网 ## 发送前 cur TimeCredits: 1651700 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 1503400 # 第三次入网 ## 发送前 cur TimeCredits: 1503400 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 1355100 # 第四次入网 ## 发送前 cur TimeCredits: 1355100 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 1206800 # 第五次入网 ## 发送前 cur TimeCredits: 1206800 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 1058500 # 第六次入网 ## 发送前 cur TimeCredits: 1058500 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 910200 # 第七次入网 ## 发送前 cur TimeCredits: 910200 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 761900 # 第八次入网 ## 发送前 cur TimeCredits: 761900 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 613600 # 第九次入网 ## 发送前 cur TimeCredits: 613600 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 465300 # 第十次入网 ## 发送前 cur TimeCredits: 465300 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 317000 # 第十一次入网 ## 发送前 cur TimeCredits: 317000 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 168700 # 第十二次入网 ## 发送前 cur TimeCredits: 168700 tx creditCosts: 148300 ## 发送后 real tx creditCosts: 148300 TimeCredits left: 20400 # 第十三次入网 ## 发送前 cur TimeCredits: 20400 tx creditCosts: 148300 # 条件不满足, 不发送 # 第十三次入网 ## 发送前 cur TimeCredits: 20400 tx creditCosts: 148300 # 条件不满足, 不发送 # 需要等下一个时间段才可以继续发送入网请求 版权声明\n本文为「Zeepunt 日常随笔」的原创文章，遵循 CC BY-NC-ND 4.0 许可协议。允许在署名作者、注明原文链接且不作任何更改的前提下非商业性地分享本文。\r原文链接：https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/\r","wordCount":"1492","inLanguage":"zh-cn","datePublished":"2025-11-11T21:45:32+08:00","dateModified":"2025-11-11T21:45:32+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/"},"publisher":{"@type":"Organization","name":"Zeepunt 日常随笔","logo":{"@type":"ImageObject","url":"https://zeepunt.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://zeepunt.github.io/ accesskey=h title="Zeepunt 日常随笔 (Alt + H)">Zeepunt 日常随笔</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://zeepunt.github.io/search/ title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://zeepunt.github.io/archives/ title=归档><span>归档</span></a></li><li><a href=https://zeepunt.github.io/article/ title=文章><span>文章</span></a></li><li><a href=https://zeepunt.github.io/tags/ title=标签><span>标签</span></a></li><li><a href=https://github.com/Zeepunt title=Github><span>Github</span>&nbsp;
+<svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">【Node】占空比机制</h1><div class=post-meta><span title='2025-11-11 21:45:32 +0800 +0800'>November 11, 2025</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>1492 words</span><div class=meta-item>阅读量 <span id=busuanzi_value_page_pv></div></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details open><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#%e4%b8%80%e5%8d%a0%e7%a9%ba%e6%af%94 aria-label=一、占空比>一、占空比</a><ul><li><a href=#1-%e5%8c%ba%e5%9f%9f%e5%92%8c%e5%8d%a0%e7%a9%ba%e6%af%94 aria-label="1. 区域和占空比">1. 区域和占空比</a></li><li><a href=#2-%e5%8d%a0%e7%a9%ba%e6%af%94%e8%a7%84%e5%88%99 aria-label="2. 占空比规则">2. 占空比规则</a></li><li><a href=#3-%e5%8d%a0%e7%a9%ba%e6%af%94%e4%bb%a3%e7%a0%81 aria-label="3. 占空比代码">3. 占空比代码</a><ul><li><a href=#31-%e5%8d%a0%e7%a9%ba%e6%af%94%e5%8f%82%e6%95%b0 aria-label="3.1. 占空比参数">3.1. 占空比参数</a></li><li><a href=#32-%e6%9b%b4%e6%96%b0%e5%8d%a0%e7%a9%ba%e6%af%94%e6%9c%80%e5%a4%a7%e5%80%bc aria-label="3.2. 更新占空比最大值">3.2. 更新占空比最大值</a></li><li><a href=#33-%e4%bd%bf%e7%94%a8%e5%8d%a0%e7%a9%ba%e6%af%94 aria-label="3.3. 使用占空比">3.3. 使用占空比</a></li><li><a href=#34-%e7%bb%93%e8%ae%ba aria-label="3.4. 结论">3.4. 结论</a></li></ul></li></ul></li><li><a href=#%e4%ba%8c%e7%a4%ba%e4%be%8b aria-label=二、示例>二、示例</a><ul><li><a href=#1-eu868 aria-label="1. EU868">1. EU868</a><ul><li><a href=#11-%e9%85%8d%e7%bd%ae aria-label="1.1. 配置">1.1. 配置</a></li><li><a href=#12-%e9%a2%91%e7%b9%81%e5%85%a5%e7%bd%91%e5%8f%97%e9%99%90 aria-label="1.2. 频繁入网受限">1.2. 频繁入网受限</a></li></ul></li></ul></li></ul></div></details></div></aside><script>let activeElement,elements;window.addEventListener("DOMContentLoaded",function(){checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),activeElement=elements[0];const t=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${t}"]`).classList.add("active")},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{activeElement||=Array.from(elements).find(e=>{if(getOffsetTop(e)-window.pageYOffset>0&&getOffsetTop(e)-window.pageYOffset<window.innerHeight/2)return e}),elements.forEach(e=>{const t=encodeURI(e.getAttribute("id")).toLowerCase();e===activeElement?document.querySelector(`.inner ul li a[href="#${t}"]`).classList.add("active"):document.querySelector(`.inner ul li a[href="#${t}"]`).classList.remove("active")})},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><ul><li>协议栈代码：<a href=https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.7.0>LoRaMac-node v4.7.0</a></li><li>参考文档<ul><li>《RP002-1.0.4 LoRaWAN® Regional Parameters》</li><li>《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》</li></ul></li></ul><h1 id=一占空比>一、占空比<a hidden class=anchor aria-hidden=true href=#一占空比>#</a></h1><h2 id=1-区域和占空比>1. 区域和占空比<a hidden class=anchor aria-hidden=true href=#1-区域和占空比>#</a></h2><blockquote><p>参考《RP002-1.0.4 LoRaWAN® Regional Parameters》1.3 Regional Parameters Summary Tables</p></blockquote><p>有些 Region 是有占空比限制，有些 Region 是没有占空比限制的。</p><p>对于动态频点的 Region：</p><p><img loading=lazy src=/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/assets/1762742258.png></p><p>对于固定频点的 Region：</p><p><img loading=lazy src=/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/assets/1762742259.png></p><h2 id=2-占空比规则>2. 占空比规则<a hidden class=anchor aria-hidden=true href=#2-占空比规则>#</a></h2><blockquote><p>参考《TS001-1.0.4 LoRaWAN® L2 1.0.4 Specification》7 Retransmissions Backoff</p></blockquote><p><img loading=lazy src=/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/assets/1762742260.png></p><h2 id=3-占空比代码>3. 占空比代码<a hidden class=anchor aria-hidden=true href=#3-占空比代码>#</a></h2><p>占空比代码涉及到两个概念：</p><ul><li><p>时间信用（Time Credit）</p><p>不同的时间段内，都有一个最大可花费的时间信用，每次发送数据都会消耗一笔时间信用，当时间信用不满足下一次发送的花费时，则不允许发送数据。</p></li><li><p>观察时间（Observation Time）</p><p>当出现当时间信用不满足下一次发送的花费这种情况时，则会计算到达下一个时间段的观察时间，在下一个时间段内所花费的时间信息会清零。</p></li></ul><h3 id=31-占空比参数>3.1. 占空比参数<a hidden class=anchor aria-hidden=true href=#31-占空比参数>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* src/mac/region/RegionCommon.c */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* Duty Cycle 1% */</span>
+</span></span><span class=line><span class=cl><span class=cp>#define BACKOFF_DC_1_HOUR                          100
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#define BACKOFF_DUTY_CYCLE_1_HOUR_IN_S             3600
+</span></span></span><span class=line><span class=cl><span class=cp>#define BACKOFF_DUTY_CYCLE_10_HOURS_IN_S           (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 10))
+</span></span></span><span class=line><span class=cl><span class=cp>#define BACKOFF_DUTY_CYCLE_24_HOURS_IN_S           (BACKOFF_DUTY_CYCLE_10_HOURS_IN_S + (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24))
+</span></span></span><span class=line><span class=cl><span class=cp>#define BACKOFF_24_HOURS_IN_S                      (BACKOFF_DUTY_CYCLE_1_HOUR_IN_S * 24)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#ifndef DUTY_CYCLE_TIME_PERIOD
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=cm>/* Default duty cycle observation time period is 1 hour (3600000 ms) according to ETSI. */</span>
+</span></span><span class=line><span class=cl><span class=cp>#define DUTY_CYCLE_TIME_PERIOD                     3600000
+</span></span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#ifndef DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=cm>/* Time credits for the join backoff algorithm for the 24H period. */</span>
+</span></span><span class=line><span class=cl><span class=cp>#define DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H    870000
+</span></span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=32-更新占空比最大值>3.2. 更新占空比最大值<a hidden class=anchor aria-hidden=true href=#32-更新占空比最大值>#</a></h3><p>更新时间信用和观察时间：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* src/mac/region/RegionCommon.c */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>static</span> <span class=kt>uint16_t</span> <span class=nf>UpdateTimeCredits</span><span class=p>(</span><span class=n>Band_t</span> <span class=o>*</span><span class=n>band</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>joined</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>dutyCycleEnabled</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                  <span class=kt>bool</span> <span class=n>lastTxIsJoinRequest</span><span class=p>,</span> <span class=n>SysTime_t</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                  <span class=n>TimerTime_t</span> <span class=n>currentTime</span><span class=p>,</span> <span class=n>TimerTime_t</span> <span class=n>lastBandUpdateTime</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 计算当前时间段的占空比 */</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>dutyCycle</span> <span class=o>=</span> <span class=nf>SetMaxTimeCredits</span><span class=p>(</span><span class=n>band</span><span class=p>,</span> <span class=n>joined</span><span class=p>,</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                           <span class=n>dutyCycleEnabled</span><span class=p>,</span> <span class=n>lastTxIsJoinRequest</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 观察时间默认是 1 小时 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>TimerTime_t</span> <span class=n>observation</span> <span class=o>=</span> <span class=n>DUTY_CYCLE_TIME_PERIOD</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 如果当前还未入网, 则根据占空比的规则来更新观察时间 */</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>joined</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>elapsedTimeSinceStartup</span><span class=p>.</span><span class=n>Seconds</span> <span class=o>&lt;</span> <span class=n>BACKOFF_DUTY_CYCLE_1_HOUR_IN_S</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>observation</span> <span class=o>=</span> <span class=n>BACKOFF_DUTY_CYCLE_1_HOUR_IN_S</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=p>(</span><span class=n>elapsedTimeSinceStartup</span><span class=p>.</span><span class=n>Seconds</span> <span class=o>&lt;</span> <span class=n>BACKOFF_DUTY_CYCLE_10_HOURS_IN_S</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>observation</span> <span class=o>=</span> <span class=p>(</span><span class=n>BACKOFF_DUTY_CYCLE_10_HOURS_IN_S</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>observation</span> <span class=o>=</span> <span class=p>(</span><span class=n>BACKOFF_DUTY_CYCLE_24_HOURS_IN_S</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>     * 1. 传进来的 lastBandUpdateTime 是当前时间和 band-&gt;LastBandUpdateTime 的时间间隔
+</span></span></span><span class=line><span class=cl><span class=cm>     *    这里表示时间间隔已经经过了 observation 观察时间, 需要重新更新时间信用
+</span></span></span><span class=line><span class=cl><span class=cm>     * 2. 观察时间 observation 和 band-&gt;LastMaxCreditAssignTime 不一样
+</span></span></span><span class=line><span class=cl><span class=cm>     *    这里表示由于时间段的不同, 需要更新观察时间
+</span></span></span><span class=line><span class=cl><span class=cm>     * 3. band-&gt;LastBandUpdateTime 表示的第一次更新时间信用和观察时间
+</span></span></span><span class=line><span class=cl><span class=cm>     */</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>((</span><span class=n>observation</span> <span class=o>&lt;=</span> <span class=n>lastBandUpdateTime</span><span class=p>)</span> <span class=o>||</span> <span class=p>(</span><span class=n>band</span><span class=o>-&gt;</span><span class=n>LastMaxCreditAssignTime</span> <span class=o>!=</span> <span class=n>observation</span><span class=p>)</span> <span class=o>||</span> <span class=p>(</span><span class=n>band</span><span class=o>-&gt;</span><span class=n>LastBandUpdateTime</span> <span class=o>==</span> <span class=mi>0</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 更新当前 band 的 MaxTimeCredits / TimeCredits / LastMaxCreditAssignTime */</span>
+</span></span><span class=line><span class=cl>        <span class=n>band</span><span class=o>-&gt;</span><span class=n>TimeCredits</span> <span class=o>=</span> <span class=n>band</span><span class=o>-&gt;</span><span class=n>MaxTimeCredits</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>band</span><span class=o>-&gt;</span><span class=n>LastBandUpdateTime</span> <span class=o>=</span> <span class=n>currentTime</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>band</span><span class=o>-&gt;</span><span class=n>LastMaxCreditAssignTime</span> <span class=o>=</span> <span class=n>observation</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>dutyCycle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>计算最大的时间信用：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* src/mac/region/RegionCommon.c */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>static</span> <span class=kt>uint16_t</span> <span class=nf>SetMaxTimeCredits</span><span class=p>(</span><span class=n>Band_t</span> <span class=o>*</span><span class=n>band</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>joined</span><span class=p>,</span> <span class=n>SysTime_t</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                  <span class=kt>bool</span> <span class=n>dutyCycleEnabled</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>lastTxIsJoinRequest</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>dutyCycle</span> <span class=o>=</span> <span class=n>band</span><span class=o>-&gt;</span><span class=n>DCycle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 时间信用最大值默认是 1 小时 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>TimerTime_t</span> <span class=n>maxCredits</span> <span class=o>=</span> <span class=n>DUTY_CYCLE_TIME_PERIOD</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>dutyCycle</span> <span class=o>=</span> <span class=nf>GetDutyCycle</span><span class=p>(</span><span class=n>band</span><span class=p>,</span> <span class=n>joined</span><span class=p>,</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>joined</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 当前还未入网 */</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>elapsedTimeSinceStartup</span><span class=p>.</span><span class=n>Seconds</span> <span class=o>&lt;</span> <span class=n>BACKOFF_DUTY_CYCLE_1_HOUR_IN_S</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/* 0 &lt; t &lt; 0+1 */</span>
+</span></span><span class=line><span class=cl>            <span class=n>maxCredits</span> <span class=o>=</span> <span class=n>DUTY_CYCLE_TIME_PERIOD</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=p>(</span><span class=n>elapsedTimeSinceStartup</span><span class=p>.</span><span class=n>Seconds</span> <span class=o>&lt;</span> <span class=n>BACKOFF_DUTY_CYCLE_10_HOURS_IN_S</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/* 0+1 &lt; t &lt; 0+11 */</span>
+</span></span><span class=line><span class=cl>            <span class=n>maxCredits</span> <span class=o>=</span> <span class=n>DUTY_CYCLE_TIME_PERIOD</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/* 0+11 + (N x 24 hours) &lt; t &lt; 0 + 35 + (N x 24 hours) */</span>
+</span></span><span class=line><span class=cl>            <span class=n>maxCredits</span> <span class=o>=</span> <span class=n>DUTY_CYCLE_TIME_PERIOD_JOIN_BACKOFF_24H</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 当前已入网 */</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>dutyCycleEnabled</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/* 如果关掉了占空比, 则可以任意发送数据, 不受占空比控制 */</span>
+</span></span><span class=line><span class=cl>            <span class=n>band</span><span class=o>-&gt;</span><span class=n>TimeCredits</span> <span class=o>=</span> <span class=n>maxCredits</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 获取当前 band 的时间信用 (TimeCredits) 最大值 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>band</span><span class=o>-&gt;</span><span class=n>MaxTimeCredits</span> <span class=o>=</span> <span class=n>maxCredits</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>dutyCycle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>static</span> <span class=kt>uint16_t</span> <span class=nf>GetDutyCycle</span><span class=p>(</span><span class=n>Band_t</span> <span class=o>*</span><span class=n>band</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>joined</span><span class=p>,</span> <span class=n>SysTime_t</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 实际的占空比取决于 band 的配置参数 DCycle */</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>dutyCycle</span> <span class=o>=</span> <span class=n>band</span><span class=o>-&gt;</span><span class=n>DCycle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>joined</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint16_t</span> <span class=n>joinDutyCycle</span> <span class=o>=</span> <span class=n>BACKOFF_DC_1_HOUR</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>dutyCycle</span> <span class=o>=</span> <span class=nf>MAX</span><span class=p>(</span><span class=n>dutyCycle</span><span class=p>,</span> <span class=n>joinDutyCycle</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>dutyCycle</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 如果是无效的值, 则设为默认值 1, 表示 100.0 % */</span>
+</span></span><span class=line><span class=cl>        <span class=n>dutyCycle</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>dutyCycle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=33-使用占空比>3.3. 使用占空比<a hidden class=anchor aria-hidden=true href=#33-使用占空比>#</a></h3><p>数据发送前，计算本次发送所花费的时间信用是否满足条件：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* src/mac/region/RegionCommon.c */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>TimerTime_t</span> <span class=nf>RegionCommonUpdateBandTimeOff</span><span class=p>(</span><span class=kt>bool</span> <span class=n>joined</span><span class=p>,</span> <span class=n>Band_t</span> <span class=o>*</span><span class=n>bands</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                          <span class=kt>uint8_t</span> <span class=n>nbBands</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>dutyCycleEnabled</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                          <span class=kt>bool</span> <span class=n>lastTxIsJoinRequest</span><span class=p>,</span> <span class=n>SysTime_t</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                          <span class=n>TimerTime_t</span> <span class=n>expectedTimeOnAir</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 默认值是 (uint32_t)~0, 即 0xFFFFFFFF */</span>
+</span></span><span class=line><span class=cl>    <span class=n>TimerTime_t</span> <span class=n>minTimeToWait</span> <span class=o>=</span> <span class=n>TIMERTIME_T_MAX</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 检测每一个 band */</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>nbBands</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 上一次调用 UpdateTimeCredits 到当前的时间间隔 */</span>
+</span></span><span class=line><span class=cl>        <span class=n>TimerTime_t</span> <span class=n>elapsedTime</span> <span class=o>=</span> <span class=nf>TimerGetElapsedTime</span><span class=p>(</span><span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>LastBandUpdateTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>dutyCycle</span> <span class=o>=</span> <span class=nf>UpdateTimeCredits</span><span class=p>(</span><span class=o>&amp;</span><span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>joined</span><span class=p>,</span> <span class=n>dutyCycleEnabled</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                      <span class=n>lastTxIsJoinRequest</span><span class=p>,</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                      <span class=n>currentTime</span><span class=p>,</span> <span class=n>elapsedTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 本次发送预计花费的 TimeCredits */</span>
+</span></span><span class=line><span class=cl>        <span class=n>creditCosts</span> <span class=o>=</span> <span class=n>expectedTimeOnAir</span> <span class=o>*</span> <span class=n>dutyCycle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 如果本次发送花费的 TimeCredits 还在剩余范围, 则允许在该 band 发送 */</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>((</span><span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>TimeCredits</span> <span class=o>&gt;</span> <span class=n>creditCosts</span><span class=p>)</span> <span class=o>||</span> <span class=p>((</span><span class=n>dutyCycleEnabled</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=p>(</span><span class=n>joined</span> <span class=o>==</span> <span class=nb>true</span><span class=p>)))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>ReadyForTransmission</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=n>validBands</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>ReadyForTransmission</span> <span class=o>=</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>MaxTimeCredits</span> <span class=o>&gt;</span> <span class=n>creditCosts</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=n>TimerTime_t</span> <span class=n>observationTimeDiff</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=cm>/* 当前时间段内的时间信用已用完, 则使用观察时间 LastMaxCreditAssignTime 减去当前的时间间隔 */</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=p>(</span><span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>LastMaxCreditAssignTime</span> <span class=o>&gt;=</span> <span class=n>elapsedTime</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=n>observationTimeDiff</span> <span class=o>=</span> <span class=n>bands</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>LastMaxCreditAssignTime</span> <span class=o>-</span> <span class=n>elapsedTime</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=cm>/* 取较小的值 */</span>
+</span></span><span class=line><span class=cl>                <span class=n>minTimeToWait</span> <span class=o>=</span> <span class=nf>MIN</span><span class=p>(</span><span class=n>minTimeToWait</span><span class=p>,</span> <span class=n>observationTimeDiff</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=n>validBands</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>数据发送完成后：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* src/mac/region/RegionCommon.c */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>RegionCommonSetBandTxDone</span><span class=p>(</span><span class=n>Band_t</span> <span class=o>*</span><span class=n>band</span><span class=p>,</span> <span class=n>TimerTime_t</span> <span class=n>lastTxAirTime</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>joined</span><span class=p>,</span> <span class=n>SysTime_t</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>dutyCycle</span> <span class=o>=</span> <span class=nf>GetDutyCycle</span><span class=p>(</span><span class=n>band</span><span class=p>,</span> <span class=n>joined</span><span class=p>,</span> <span class=n>elapsedTimeSinceStartup</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>band</span><span class=o>-&gt;</span><span class=n>TimeCredits</span> <span class=o>&gt;</span> <span class=p>(</span><span class=n>lastTxAirTime</span> <span class=o>*</span> <span class=n>dutyCycle</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 减去当前发送所花费的 TimeCredits */</span>
+</span></span><span class=line><span class=cl>        <span class=n>band</span><span class=o>-&gt;</span><span class=n>TimeCredits</span> <span class=o>-=</span> <span class=p>(</span><span class=n>lastTxAirTime</span> <span class=o>*</span> <span class=n>dutyCycle</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>band</span><span class=o>-&gt;</span><span class=n>TimeCredits</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=34-结论>3.4. 结论<a hidden class=anchor aria-hidden=true href=#34-结论>#</a></h3><ol><li><p>一个 Region 会有一个或多个 Band，对于每一个 Band，都会维护四个参数：</p><ul><li><p><code>TimeCredits</code></p><p>当前时间段内可用的时间信用。</p></li><li><p><code>MaxTimeCredits</code></p><p>当前时间段内最大的时间信用。</p></li><li><p><code>LastBandUpdateTime</code></p><p>当前 Band 参数最后更新的时间。</p></li><li><p><code>LastMaxCreditAssignTime</code></p><p>当前 Band 的观察时间。</p></li></ul><p>更新参数的条件：</p><ol><li>上一次记录的 <code>LastBandUpdateTime</code> 到当前的时间间隔已经超出了本次计算得到的观察时间 observation。</li><li>上一次记录的 <code>LastMaxCreditAssignTime</code> 和本次计算得到的观察时间 observation 不一致。</li><li>第一次更新参数。</li></ol></li><li><p>每次发送前都会计算本次发送所要花费的时间信用 <code>creditCosts</code>，如果当前可用的时间信用 <code>TimeCredits</code> 不够时：</p><ul><li>如果是立即发送的话，则取消本次发送</li><li>如果支持延时发送的话，则在下一个时间阶段再重新发送。</li></ul></li><li><p>每次发送成功后，都会更新当前可用的时间信用 <code>TimeCredits</code>。</p></li><li><p>如果当前设备未入网的话，观察时间分为三个阶段，每个阶段的观察时间都不一样：</p><ul><li>前 1 小时内</li><li>第 1 个小时到第 11 个小时的期间</li><li>超过第 11 个小时后</li></ul><p>如果当前设备已经入网，那么观察时间默认是 1 小时。</p></li><li><p>如果当前设备未入网的话，最大时间信用分为三个阶段，每个阶段的观察时间都不一样：</p><ul><li>前 1 小时内</li><li>第 1 个小时到第 11 个小时的期间</li><li>超过第 11 个小时后</li></ul><p>如果当前设备已经入网，则最大时间信用默认是 1 小时。如果此时关闭了占空比（<code>dutyCycleEnabled</code> 为 false），那么可用的时间信用也是 1 小时（表示单位时间内可用任意发送）。</p></li><li><p>每个 Region 里面的每一个 Band 都已经预设好了占空比。这个占空比主要是用于计算本次发送所要花费的时间信用、发送完成后更新当前可用的时间信用。</p></li></ol><h1 id=二示例>二、示例<a hidden class=anchor aria-hidden=true href=#二示例>#</a></h1><h2 id=1-eu868>1. EU868<a hidden class=anchor aria-hidden=true href=#1-eu868>#</a></h2><h3 id=11-配置>1.1. 配置<a hidden class=anchor aria-hidden=true href=#11-配置>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* src/mac/region/RegionEU868.h */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#define EU868_MAX_NB_BANDS    6
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* Band = {DutyCycle, TxMaxPower, LastBandUpdateTime, LastMaxCreditAssignTime, TimeCredits, MaxTimeCredits, ReadyForTransmission} */</span>
+</span></span><span class=line><span class=cl><span class=cp>#define EU868_BAND0    {100 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} </span><span class=c1>//  1.0 %
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define EU868_BAND1    {100 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} </span><span class=c1>//  1.0 %
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define EU868_BAND2    {1000, EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} </span><span class=c1>//  0.1 %
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define EU868_BAND3    {10  , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} </span><span class=c1>// 10.0 %
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define EU868_BAND4    {100 , EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} </span><span class=c1>//  1.0 %
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define EU868_BAND5    {1000, EU868_MAX_TX_POWER, 0, 0, 0, 0, 0} </span><span class=c1>//  0.1 %
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=cm>/* Channel = {Frequency [Hz], RX1 Frequency [Hz], {((DrMax &lt;&lt; 4) | DrMin)}, Band} */</span>
+</span></span><span class=line><span class=cl><span class=cp>#define EU868_LC1    {868100000, 0, {((DR_5 &lt;&lt; 4) | DR_0)}, 1}
+</span></span></span><span class=line><span class=cl><span class=cp>#define EU868_LC2    {868300000, 0, {((DR_5 &lt;&lt; 4) | DR_0)}, 1}
+</span></span></span><span class=line><span class=cl><span class=cp>#define EU868_LC3    {868500000, 0, {((DR_5 &lt;&lt; 4) | DR_0)}, 1}
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#define EU868_JOIN_CHANNELS    (uint16_t)(LC(1) | LC(2) | LC(3))
+</span></span></span></code></pre></td></tr></table></div></div><p>EU868 有 6 个 Band，每个 Band 的占空比都不一样。</p><p>EU868 默认的入网频点是 868.1 / 868.3 / 868.5 MHz，由于这三个频点放在 Band1 里面，那么其占空比是 1%</p><h3 id=12-频繁入网受限>1.2. 频繁入网受限<a hidden class=anchor aria-hidden=true href=#12-频繁入网受限>#</a></h3><p>由于入网时的占空比是不可以关闭的，那么当频繁入网时，就会出现超出占空比后不再发送的情况。</p><blockquote><p>这里测试时的 <code>DUTY_CYCLE_TIME_PERIOD</code> 为 1800000，即 18s。</p></blockquote><ol><li>对于前 1 个小时的频繁入网（假如入网不成功），band 1 的最大时间信用 MaxTimeCredits 是 1800000，可用的时间信用 TimeCredits 也为 1800000。</li><li>当准备发送 Join-Request，会计算本次要花费的时间信用 creditCosts，如果 TimeCredits > creditCosts，则允许发送。</li><li>当 Join-Request 发送完成后，会在 TimeCredits 里面扣掉本次发送花费的时间信用。</li></ol><p>如此循环，直到 TimeCredits 不满足下一次发送的花费。</p><p>测试打印如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 第一次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>1800000</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>1651700</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第二次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>1651700</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>1503400</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第三次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>1503400</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>1355100</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第四次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>1355100</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>1206800</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第五次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>1206800</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span> 
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span> 
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>1058500</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第六次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>1058500</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>910200</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第七次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>910200</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>761900</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第八次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>761900</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>613600</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第九次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>613600</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>465300</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第十次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>465300</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>317000</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第十一次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>317000</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>168700</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第十二次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>168700</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送后</span>
+</span></span><span class=line><span class=cl>real tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl>TimeCredits left: <span class=m>20400</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第十三次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>20400</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1># 条件不满足, 不发送</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第十三次入网</span>
+</span></span><span class=line><span class=cl><span class=c1>## 发送前</span>
+</span></span><span class=line><span class=cl>cur TimeCredits: <span class=m>20400</span>
+</span></span><span class=line><span class=cl>tx creditCosts: <span class=m>148300</span>
+</span></span><span class=line><span class=cl><span class=c1># 条件不满足, 不发送</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 需要等下一个时间段才可以继续发送入网请求</span>
+</span></span></code></pre></td></tr></table></div></div><div class=article-copyright style="background-color:#f5f5f5;border-left:4px solid #ff6b6b;padding:12px 16px;margin:24px 0;font-size:.9rem;color:#555;line-height:1.5"><p style=margin:0;font-weight:700>版权声明</p><p style="margin:4px 0 0">本文为「<a href=https://zeepunt.github.io/ target=_blank style=color:#0366d6>Zeepunt 日常随笔</a>」的原创文章，遵循<a href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank style=color:#0366d6> CC BY-NC-ND 4.0 </a>许可协议。允许在署名作者、注明原文链接且不作任何更改的前提下非商业性地分享本文。</p><p style="margin:4px 0 0">原文链接：<a href=https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/ target=_blank style=color:#0366d6;word-break:break-all>https://zeepunt.github.io/article/lora/device%E5%8D%A0%E7%A9%BA%E6%AF%94%E6%9C%BA%E5%88%B6/</a></p></div></div><footer class=post-footer><ul class=post-tags><li><a href=https://zeepunt.github.io/tags/lorawan/>LoRaWAN</a></li></ul></footer></article></main><footer class=footer><span>&copy; 2026 <a href=https://zeepunt.github.io/>Zeepunt 日常随笔</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg></a><footer class=footer><div>网站总访客数<span id=vercount_value_site_uv></span>次
+网站总访问量<span id=vercount_value_site_pv></span>人次</div></footer><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>

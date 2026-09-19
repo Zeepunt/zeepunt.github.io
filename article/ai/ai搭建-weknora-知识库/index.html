@@ -1,0 +1,300 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>【AI】部署 WeKnora 知识库 | Zeepunt 日常随笔</title><meta name=keywords content="AI,WeKnora"><meta name=description content='WeKnora
+WeKnora 是一款基于 LLM 的知识库管理框架，它是由腾讯开源的。
+Windows
+环境：
+
+Windows 10 64-bit
+
+安装 Docker
+直接安装 Docker Desktop，当前安装是最新版本：
+
+
+1
+2
+3
+4
+5
+
+
+$ docker --version
+Docker version 29.6.1, build 8900f1d
+
+$ docker-compose --version
+Docker Compose version v5.2.0
+
+
+配置国内镜像源
+这里可以跳过，配置 Docker Hub 的国内镜像源的目的是访问国内服务器比较稳定。
+
+
+这个配置文件默认是：C:\Users\<用户名>\.docker\daemon.json。
+修改后的内容如下所示：
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+
+
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn"
+  ]
+}
+
+
+启动 WeKnora
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+
+
+# 拉取代码
+$ git clone https://github.com/Tencent/WeKnora.git
+
+# 使用示例配置
+$ cd WeKnora
+$ cp .env.example .env
+
+# 运行 Docker Desktop, 目的是开启 Docker Engine
+# 启动核心服务
+$ docker compose up -d
+
+
+启动成功后，我们可以在 Docker Desktop 里面查看其状态：'><meta name=author content><link rel=canonical href=https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/><link crossorigin=anonymous href=/assets/css/stylesheet.36916a4e109699390409b213554982c9e53fdaa3b37bb1fce07cd34f3e7a5af9.css integrity="sha256-NpFqThCWmTkECbITVUmCyeU/2qOze7H84HzTTz56Wvk=" rel="preload stylesheet" as=style><link rel=icon href=https://zeepunt.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://zeepunt.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://zeepunt.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://zeepunt.github.io/apple-touch-icon.png><link rel=mask-icon href=https://zeepunt.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script defer src=https://cn.vercount.one/js></script><meta property="og:url" content="https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/"><meta property="og:site_name" content="Zeepunt 日常随笔"><meta property="og:title" content="【AI】部署 WeKnora 知识库"><meta property="og:description" content='WeKnora WeKnora 是一款基于 LLM 的知识库管理框架，它是由腾讯开源的。
+Windows 环境：
+Windows 10 64-bit 安装 Docker 直接安装 Docker Desktop，当前安装是最新版本：
+1 2 3 4 5 $ docker --version Docker version 29.6.1, build 8900f1d $ docker-compose --version Docker Compose version v5.2.0 配置国内镜像源 这里可以跳过，配置 Docker Hub 的国内镜像源的目的是访问国内服务器比较稳定。
+这个配置文件默认是：C:\Users\<用户名>\.docker\daemon.json。
+修改后的内容如下所示：
+1 2 3 4 5 6 7 8 9 10 11 12 { "builder": { "gc": { "defaultKeepStorage": "20GB", "enabled": true } }, "experimental": false, "registry-mirrors": [ "https://docker.mirrors.ustc.edu.cn" ] } 启动 WeKnora 1 2 3 4 5 6 7 8 9 10 # 拉取代码 $ git clone https://github.com/Tencent/WeKnora.git # 使用示例配置 $ cd WeKnora $ cp .env.example .env # 运行 Docker Desktop, 目的是开启 Docker Engine # 启动核心服务 $ docker compose up -d 启动成功后，我们可以在 Docker Desktop 里面查看其状态：'><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="article"><meta property="article:published_time" content="2026-07-11T19:02:21+08:00"><meta property="article:modified_time" content="2026-07-11T19:02:21+08:00"><meta property="article:tag" content="AI"><meta property="article:tag" content="WeKnora"><meta name=twitter:card content="summary"><meta name=twitter:title content="【AI】部署 WeKnora 知识库"><meta name=twitter:description content='WeKnora
+WeKnora 是一款基于 LLM 的知识库管理框架，它是由腾讯开源的。
+Windows
+环境：
+
+Windows 10 64-bit
+
+安装 Docker
+直接安装 Docker Desktop，当前安装是最新版本：
+
+
+1
+2
+3
+4
+5
+
+
+$ docker --version
+Docker version 29.6.1, build 8900f1d
+
+$ docker-compose --version
+Docker Compose version v5.2.0
+
+
+配置国内镜像源
+这里可以跳过，配置 Docker Hub 的国内镜像源的目的是访问国内服务器比较稳定。
+
+
+这个配置文件默认是：C:\Users\<用户名>\.docker\daemon.json。
+修改后的内容如下所示：
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+
+
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn"
+  ]
+}
+
+
+启动 WeKnora
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+
+
+# 拉取代码
+$ git clone https://github.com/Tencent/WeKnora.git
+
+# 使用示例配置
+$ cd WeKnora
+$ cp .env.example .env
+
+# 运行 Docker Desktop, 目的是开启 Docker Engine
+# 启动核心服务
+$ docker compose up -d
+
+
+启动成功后，我们可以在 Docker Desktop 里面查看其状态：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Articles","item":"https://zeepunt.github.io/article/"},{"@type":"ListItem","position":2,"name":"【AI】部署 WeKnora 知识库","item":"https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"【AI】部署 WeKnora 知识库","name":"【AI】部署 WeKnora 知识库","description":"WeKnora WeKnora 是一款基于 LLM 的知识库管理框架，它是由腾讯开源的。\nWindows 环境：\nWindows 10 64-bit 安装 Docker 直接安装 Docker Desktop，当前安装是最新版本：\n1 2 3 4 5 $ docker --version Docker version 29.6.1, build 8900f1d $ docker-compose --version Docker Compose version v5.2.0 配置国内镜像源 这里可以跳过，配置 Docker Hub 的国内镜像源的目的是访问国内服务器比较稳定。\n这个配置文件默认是：C:\\Users\\\u0026lt;用户名\u0026gt;\\.docker\\daemon.json。\n修改后的内容如下所示：\n1 2 3 4 5 6 7 8 9 10 11 12 { \u0026#34;builder\u0026#34;: { \u0026#34;gc\u0026#34;: { \u0026#34;defaultKeepStorage\u0026#34;: \u0026#34;20GB\u0026#34;, \u0026#34;enabled\u0026#34;: true } }, \u0026#34;experimental\u0026#34;: false, \u0026#34;registry-mirrors\u0026#34;: [ \u0026#34;https://docker.mirrors.ustc.edu.cn\u0026#34; ] } 启动 WeKnora 1 2 3 4 5 6 7 8 9 10 # 拉取代码 $ git clone https://github.com/Tencent/WeKnora.git # 使用示例配置 $ cd WeKnora $ cp .env.example .env # 运行 Docker Desktop, 目的是开启 Docker Engine # 启动核心服务 $ docker compose up -d 启动成功后，我们可以在 Docker Desktop 里面查看其状态：\n","keywords":["AI","WeKnora"],"articleBody":"WeKnora WeKnora 是一款基于 LLM 的知识库管理框架，它是由腾讯开源的。\nWindows 环境：\nWindows 10 64-bit 安装 Docker 直接安装 Docker Desktop，当前安装是最新版本：\n1 2 3 4 5 $ docker --version Docker version 29.6.1, build 8900f1d $ docker-compose --version Docker Compose version v5.2.0 配置国内镜像源 这里可以跳过，配置 Docker Hub 的国内镜像源的目的是访问国内服务器比较稳定。\n这个配置文件默认是：C:\\Users\\\u003c用户名\u003e\\.docker\\daemon.json。\n修改后的内容如下所示：\n1 2 3 4 5 6 7 8 9 10 11 12 { \"builder\": { \"gc\": { \"defaultKeepStorage\": \"20GB\", \"enabled\": true } }, \"experimental\": false, \"registry-mirrors\": [ \"https://docker.mirrors.ustc.edu.cn\" ] } 启动 WeKnora 1 2 3 4 5 6 7 8 9 10 # 拉取代码 $ git clone https://github.com/Tencent/WeKnora.git # 使用示例配置 $ cd WeKnora $ cp .env.example .env # 运行 Docker Desktop, 目的是开启 Docker Engine # 启动核心服务 $ docker compose up -d 启动成功后，我们可以在 Docker Desktop 里面查看其状态：\n测试 在浏览器地址栏输入 localhost 即可访问 WeKnora，显示页面如下：\n注册账号并登录后，显示页面如下：\nWeKnora 需要自行添加大模型：\nfnOS 环境：\nfnOS v1.1.3107 开启 SSH 安装 Git 目前测试发现，fnOS 应用商店里面的 git 不是完整的，不支持 HTTPS，所以这里是通过命令行安装的。\n1 2 3 4 5 # 更新索引 $ sudo apt update # 安装 Git $ sudo apt install git 安装完成后，如果发现运行 git 命令提示找不到该命令，这可能是之前通过应用商店安装过 git，需要清除 Shell 的命令缓存：\n1 $ hash -r 启动 WeKnora fnOS 没有提供终端，所以可以通过 SSH 远程连接 fnOS 来执行命令。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 # 创建目录 $ cd /home $ mkdir project # 将目录的所有者改为 admin (当前的账号) $ sudo chown -R admin project # 拉取代码 $ cd project $ git clone https://github.com/Tencent/WeKnora.git # 使用示例配置 $ cd WeKnora $ cp .env.example .env 这里我们需要修改一下配置。\n1 2 3 4 5 6 $ vim .env # 修改内容如下 # 前端服务端口，默认为80 FRONTEND_PORT=8081 修改完成后，启动 docker。\n1 2 # 启动核心服务 $ sudo docker compose up -d 启动成功后，我们可以在 Docker 应用里面查看其状态：\n测试 当前 fnOS 的 web 地址为 http://192.168.60.134:5666。\n由于前面我们更改了 WeKnora 端口号，所以我们访问 WeKnora 的地址是 http://192.168.60.134:8081。\n版权声明\n本文为「Zeepunt 日常随笔」的原创文章，遵循 CC BY-NC-ND 4.0 许可协议。允许在署名作者、注明原文链接且不作任何更改的前提下非商业性地分享本文。\r原文链接：https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/\r","wordCount":"276","inLanguage":"zh-cn","datePublished":"2026-07-11T19:02:21+08:00","dateModified":"2026-07-11T19:02:21+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/"},"publisher":{"@type":"Organization","name":"Zeepunt 日常随笔","logo":{"@type":"ImageObject","url":"https://zeepunt.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://zeepunt.github.io/ accesskey=h title="Zeepunt 日常随笔 (Alt + H)">Zeepunt 日常随笔</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://zeepunt.github.io/search/ title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://zeepunt.github.io/archives/ title=归档><span>归档</span></a></li><li><a href=https://zeepunt.github.io/article/ title=文章><span>文章</span></a></li><li><a href=https://zeepunt.github.io/tags/ title=标签><span>标签</span></a></li><li><a href=https://github.com/Zeepunt title=Github><span>Github</span>&nbsp;
+<svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">【AI】部署 WeKnora 知识库</h1><div class=post-meta><span title='2026-07-11 19:02:21 +0800 +0800'>July 11, 2026</span>&nbsp;·&nbsp;<span>2 min</span>&nbsp;·&nbsp;<span>276 words</span><div class=meta-item>阅读量 <span id=busuanzi_value_page_pv></div></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details open><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#weknora aria-label=WeKnora>WeKnora</a></li><li><a href=#windows aria-label=Windows>Windows</a><ul><li><a href=#%e5%ae%89%e8%a3%85-docker aria-label="安装 Docker">安装 Docker</a><ul><li><a href=#%e9%85%8d%e7%bd%ae%e5%9b%bd%e5%86%85%e9%95%9c%e5%83%8f%e6%ba%90 aria-label=配置国内镜像源>配置国内镜像源</a></li></ul></li><li><a href=#%e5%90%af%e5%8a%a8-weknora aria-label="启动 WeKnora">启动 WeKnora</a></li><li><a href=#%e6%b5%8b%e8%af%95 aria-label=测试>测试</a></li></ul></li><li><a href=#fnos aria-label=fnOS>fnOS</a><ul><li><a href=#%e5%bc%80%e5%90%af-ssh aria-label="开启 SSH">开启 SSH</a></li><li><a href=#%e5%ae%89%e8%a3%85-git aria-label="安装 Git">安装 Git</a></li><li><a href=#%e5%90%af%e5%8a%a8-weknora-1 aria-label="启动 WeKnora">启动 WeKnora</a></li><li><a href=#%e6%b5%8b%e8%af%95-1 aria-label=测试>测试</a></li></ul></li></ul></div></details></div></aside><script>let activeElement,elements;window.addEventListener("DOMContentLoaded",function(){checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),activeElement=elements[0];const t=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${t}"]`).classList.add("active")},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{activeElement||=Array.from(elements).find(e=>{if(getOffsetTop(e)-window.pageYOffset>0&&getOffsetTop(e)-window.pageYOffset<window.innerHeight/2)return e}),elements.forEach(e=>{const t=encodeURI(e.getAttribute("id")).toLowerCase();e===activeElement?document.querySelector(`.inner ul li a[href="#${t}"]`).classList.add("active"):document.querySelector(`.inner ul li a[href="#${t}"]`).classList.remove("active")})},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h1 id=weknora>WeKnora<a hidden class=anchor aria-hidden=true href=#weknora>#</a></h1><p><a href=https://github.com/Tencent/WeKnora>WeKnora</a> 是一款基于 LLM 的知识库管理框架，它是由腾讯开源的。</p><h1 id=windows>Windows<a hidden class=anchor aria-hidden=true href=#windows>#</a></h1><p>环境：</p><ul><li>Windows 10 64-bit</li></ul><h2 id=安装-docker>安装 Docker<a hidden class=anchor aria-hidden=true href=#安装-docker>#</a></h2><p>直接安装 <a href=https://www.docker.com/products/docker-desktop/>Docker Desktop</a>，当前安装是最新版本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ docker --version
+</span></span><span class=line><span class=cl>Docker version 29.6.1, build 8900f1d
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ docker-compose --version
+</span></span><span class=line><span class=cl>Docker Compose version v5.2.0
+</span></span></code></pre></td></tr></table></div></div><h3 id=配置国内镜像源>配置国内镜像源<a hidden class=anchor aria-hidden=true href=#配置国内镜像源>#</a></h3><p>这里可以跳过，配置 Docker Hub 的国内镜像源的目的是访问国内服务器比较稳定。</p><p><img alt=image-20260711195732109 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260711195732109.png></p><p><img alt=image-20260711195709384 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260711195709384.png></p><p>这个配置文件默认是：<code>C:\Users\&lt;用户名>\.docker\daemon.json</code>。</p><p>修改后的内容如下所示：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;builder&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;gc&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;defaultKeepStorage&#34;</span><span class=p>:</span> <span class=s2>&#34;20GB&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;enabled&#34;</span><span class=p>:</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;experimental&#34;</span><span class=p>:</span> <span class=kc>false</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;registry-mirrors&#34;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;https://docker.mirrors.ustc.edu.cn&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=启动-weknora>启动 WeKnora<a hidden class=anchor aria-hidden=true href=#启动-weknora>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 拉取代码</span>
+</span></span><span class=line><span class=cl>$ git clone https://github.com/Tencent/WeKnora.git
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用示例配置</span>
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> WeKnora
+</span></span><span class=line><span class=cl>$ cp .env.example .env
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 运行 Docker Desktop, 目的是开启 Docker Engine</span>
+</span></span><span class=line><span class=cl><span class=c1># 启动核心服务</span>
+</span></span><span class=line><span class=cl>$ docker compose up -d
+</span></span></code></pre></td></tr></table></div></div><p>启动成功后，我们可以在 Docker Desktop 里面查看其状态：</p><p><img alt=image-20260711200559249 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260711200559249.png></p><h2 id=测试>测试<a hidden class=anchor aria-hidden=true href=#测试>#</a></h2><p>在浏览器地址栏输入 <code>localhost</code> 即可访问 WeKnora，显示页面如下：</p><p><img alt=image-20260711200725197 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260711200725197.png></p><p>注册账号并登录后，显示页面如下：</p><p><img alt=image-20260711200902033 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260711200902033.png></p><p>WeKnora 需要自行添加大模型：</p><p><img alt=image-20260711202030530 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260711202030530.png></p><h1 id=fnos>fnOS<a hidden class=anchor aria-hidden=true href=#fnos>#</a></h1><p>环境：</p><ul><li>fnOS v1.1.3107</li></ul><h2 id=开启-ssh>开启 SSH<a hidden class=anchor aria-hidden=true href=#开启-ssh>#</a></h2><p><img alt=image-20260712003229691 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260712003229691.png></p><h2 id=安装-git>安装 Git<a hidden class=anchor aria-hidden=true href=#安装-git>#</a></h2><p>目前测试发现，fnOS 应用商店里面的 git 不是完整的，不支持 HTTPS，所以这里是通过命令行安装的。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 更新索引</span>
+</span></span><span class=line><span class=cl>$ sudo apt update
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 安装 Git</span>
+</span></span><span class=line><span class=cl>$ sudo apt install git
+</span></span></code></pre></td></tr></table></div></div><p>安装完成后，如果发现运行 <code>git</code> 命令提示找不到该命令，这可能是之前通过应用商店安装过 git，需要清除 Shell 的命令缓存：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ <span class=nb>hash</span> -r
+</span></span></code></pre></td></tr></table></div></div><h2 id=启动-weknora-1>启动 WeKnora<a hidden class=anchor aria-hidden=true href=#启动-weknora-1>#</a></h2><p>fnOS 没有提供终端，所以可以通过 SSH 远程连接 fnOS 来执行命令。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 创建目录</span>
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> /home
+</span></span><span class=line><span class=cl>$ mkdir project
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 将目录的所有者改为 admin (当前的账号)</span>
+</span></span><span class=line><span class=cl>$ sudo chown -R admin project
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 拉取代码</span>
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> project
+</span></span><span class=line><span class=cl>$ git clone https://github.com/Tencent/WeKnora.git
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用示例配置</span>
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> WeKnora
+</span></span><span class=line><span class=cl>$ cp .env.example .env
+</span></span></code></pre></td></tr></table></div></div><p>这里我们需要修改一下配置。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim .env
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 修改内容如下</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 前端服务端口，默认为80</span>
+</span></span><span class=line><span class=cl><span class=nv>FRONTEND_PORT</span><span class=o>=</span><span class=m>8081</span>
+</span></span></code></pre></td></tr></table></div></div><p>修改完成后，启动 docker。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 启动核心服务</span>
+</span></span><span class=line><span class=cl>$ sudo docker compose up -d
+</span></span></code></pre></td></tr></table></div></div><p>启动成功后，我们可以在 Docker 应用里面查看其状态：</p><p><img alt=image-20260712011004800 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260712011004800.png></p><h2 id=测试-1>测试<a hidden class=anchor aria-hidden=true href=#测试-1>#</a></h2><p>当前 fnOS 的 web 地址为 <code>http://192.168.60.134:5666</code>。</p><p>由于前面我们更改了 WeKnora 端口号，所以我们访问 WeKnora 的地址是 <code>http://192.168.60.134:8081</code>。</p><p><img alt=image-20260712011209835 loading=lazy src=/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/assets/image-20260712011209835.png></p><div class=article-copyright style="background-color:#f5f5f5;border-left:4px solid #ff6b6b;padding:12px 16px;margin:24px 0;font-size:.9rem;color:#555;line-height:1.5"><p style=margin:0;font-weight:700>版权声明</p><p style="margin:4px 0 0">本文为「<a href=https://zeepunt.github.io/ target=_blank style=color:#0366d6>Zeepunt 日常随笔</a>」的原创文章，遵循<a href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank style=color:#0366d6> CC BY-NC-ND 4.0 </a>许可协议。允许在署名作者、注明原文链接且不作任何更改的前提下非商业性地分享本文。</p><p style="margin:4px 0 0">原文链接：<a href=https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/ target=_blank style=color:#0366d6;word-break:break-all>https://zeepunt.github.io/article/ai/ai%E6%90%AD%E5%BB%BA-weknora-%E7%9F%A5%E8%AF%86%E5%BA%93/</a></p></div></div><footer class=post-footer><ul class=post-tags><li><a href=https://zeepunt.github.io/tags/ai/>AI</a></li><li><a href=https://zeepunt.github.io/tags/weknora/>WeKnora</a></li></ul></footer></article></main><footer class=footer><span>&copy; 2026 <a href=https://zeepunt.github.io/>Zeepunt 日常随笔</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg></a><footer class=footer><div>网站总访客数<span id=vercount_value_site_uv></span>次
+网站总访问量<span id=vercount_value_site_pv></span>人次</div></footer><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>

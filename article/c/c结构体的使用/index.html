@@ -1,0 +1,941 @@
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>【C】结构体的使用 | Zeepunt 日常随笔</title><meta name=keywords content="C"><meta name=description content="一、结构体对齐
+1. 默认对齐规则
+1.1. 规则
+
+
+数据类型自身的对齐值
+int8_t / uint8_t 型：1 字节。
+int16_t / uint16_t 型：2 字节。
+int32_t / uint32_t / float 型：4 字节。
+double 型：8 字节。
+
+
+结构体的自身对齐值
+其成员中自身对齐值最大的那个值。
+
+
+数据成员、结构体的有效对齐值
+自身对齐值和指定对齐值中较小者，即 有效对齐值 = min(自身对齐值，当前指定的对齐值)。
+
+
+1.2. 示例
+假如结构体的声明如下：
+
+
+1
+2
+3
+4
+5
+6
+
+
+typedef struct {
+    uint8_t  a;
+    uint16_t b;
+    uint16_t c;
+    uint32_t d;
+} struct_demo_t;
+
+
+假设当前默认是 4 字节对齐，该结构体的大小是 12 Bytes，内存的使用空间如下：
+
+
+1
+2
+3
+4
+5
+6
+7
+
+
++---+---+---+---+
+| a |   |   b   |
++---+---+---+---+
+|   c   |       |
++---+---+---+---+
+|       d       |
++---+---+---+---+
+
+
+代码测试（main.c）："><meta name=author content><link rel=canonical href=https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/><link crossorigin=anonymous href=/assets/css/stylesheet.36916a4e109699390409b213554982c9e53fdaa3b37bb1fce07cd34f3e7a5af9.css integrity="sha256-NpFqThCWmTkECbITVUmCyeU/2qOze7H84HzTTz56Wvk=" rel="preload stylesheet" as=style><link rel=icon href=https://zeepunt.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://zeepunt.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://zeepunt.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://zeepunt.github.io/apple-touch-icon.png><link rel=mask-icon href=https://zeepunt.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script defer src=https://cn.vercount.one/js></script><meta property="og:url" content="https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/"><meta property="og:site_name" content="Zeepunt 日常随笔"><meta property="og:title" content="【C】结构体的使用"><meta property="og:description" content="一、结构体对齐 1. 默认对齐规则 1.1. 规则 数据类型自身的对齐值
+int8_t / uint8_t 型：1 字节。
+int16_t / uint16_t 型：2 字节。
+int32_t / uint32_t / float 型：4 字节。
+double 型：8 字节。
+结构体的自身对齐值
+其成员中自身对齐值最大的那个值。
+数据成员、结构体的有效对齐值
+自身对齐值和指定对齐值中较小者，即 有效对齐值 = min(自身对齐值，当前指定的对齐值)。
+1.2. 示例 假如结构体的声明如下：
+1 2 3 4 5 6 typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_t; 假设当前默认是 4 字节对齐，该结构体的大小是 12 Bytes，内存的使用空间如下：
+1 2 3 4 5 6 7 +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ 代码测试（main.c）："><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="article"><meta property="article:published_time" content="2025-10-27T21:14:07+08:00"><meta property="article:modified_time" content="2025-10-27T21:14:07+08:00"><meta property="article:tag" content="C"><meta name=twitter:card content="summary"><meta name=twitter:title content="【C】结构体的使用"><meta name=twitter:description content="一、结构体对齐
+1. 默认对齐规则
+1.1. 规则
+
+
+数据类型自身的对齐值
+int8_t / uint8_t 型：1 字节。
+int16_t / uint16_t 型：2 字节。
+int32_t / uint32_t / float 型：4 字节。
+double 型：8 字节。
+
+
+结构体的自身对齐值
+其成员中自身对齐值最大的那个值。
+
+
+数据成员、结构体的有效对齐值
+自身对齐值和指定对齐值中较小者，即 有效对齐值 = min(自身对齐值，当前指定的对齐值)。
+
+
+1.2. 示例
+假如结构体的声明如下：
+
+
+1
+2
+3
+4
+5
+6
+
+
+typedef struct {
+    uint8_t  a;
+    uint16_t b;
+    uint16_t c;
+    uint32_t d;
+} struct_demo_t;
+
+
+假设当前默认是 4 字节对齐，该结构体的大小是 12 Bytes，内存的使用空间如下：
+
+
+1
+2
+3
+4
+5
+6
+7
+
+
++---+---+---+---+
+| a |   |   b   |
++---+---+---+---+
+|   c   |       |
++---+---+---+---+
+|       d       |
++---+---+---+---+
+
+
+代码测试（main.c）："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Articles","item":"https://zeepunt.github.io/article/"},{"@type":"ListItem","position":2,"name":"【C】结构体的使用","item":"https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"【C】结构体的使用","name":"【C】结构体的使用","description":"一、结构体对齐 1. 默认对齐规则 1.1. 规则 数据类型自身的对齐值\nint8_t / uint8_t 型：1 字节。\nint16_t / uint16_t 型：2 字节。\nint32_t / uint32_t / float 型：4 字节。\ndouble 型：8 字节。\n结构体的自身对齐值\n其成员中自身对齐值最大的那个值。\n数据成员、结构体的有效对齐值\n自身对齐值和指定对齐值中较小者，即 有效对齐值 = min(自身对齐值，当前指定的对齐值)。\n1.2. 示例 假如结构体的声明如下：\n1 2 3 4 5 6 typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_t; 假设当前默认是 4 字节对齐，该结构体的大小是 12 Bytes，内存的使用空间如下：\n1 2 3 4 5 6 7 +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ 代码测试（main.c）：\n","keywords":["C"],"articleBody":"一、结构体对齐 1. 默认对齐规则 1.1. 规则 数据类型自身的对齐值\nint8_t / uint8_t 型：1 字节。\nint16_t / uint16_t 型：2 字节。\nint32_t / uint32_t / float 型：4 字节。\ndouble 型：8 字节。\n结构体的自身对齐值\n其成员中自身对齐值最大的那个值。\n数据成员、结构体的有效对齐值\n自身对齐值和指定对齐值中较小者，即 有效对齐值 = min(自身对齐值，当前指定的对齐值)。\n1.2. 示例 假如结构体的声明如下：\n1 2 3 4 5 6 typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_t; 假设当前默认是 4 字节对齐，该结构体的大小是 12 Bytes，内存的使用空间如下：\n1 2 3 4 5 6 7 +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ 代码测试（main.c）：\n测试环境：Windows 10 + MSYS2 + GCC 13.3.0\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 #include #include #include typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_t; int main(int argc, char *argv[]) { uint8_t *ptr = NULL; size_t size = 0; struct_demo_t demo; memset(\u0026demo, 0, sizeof(demo)); /* 打印结构体大小 */ size = sizeof(struct_demo_t); printf(\"size: %d Bytes\\r\\n\", size); ptr = (uint8_t *)\u0026demo; /* 打印结构体的内存信息 */ printf(\"old:\\r\\n\"); for (size_t i = 0; i \u003c size; i++) { if ((i != 0) \u0026\u0026 ((i % 4) == 0)) { printf(\"\\r\\n\"); } printf(\"0x%02x \", ptr[i]); } printf(\"\\r\\n\"); demo.a = 0x01; demo.b = 0x1234; demo.c = 0x5678; demo.d = 0xaabbccdd; /* 赋值后, 打印结构体的内存信息 */ printf(\"new:\\r\\n\"); for (size_t i = 0; i \u003c size; i++) { if ((i != 0) \u0026\u0026 ((i % 4) == 0)) { printf(\"\\r\\n\"); } printf(\"0x%02x \", ptr[i]); } printf(\"\\r\\n\"); return 0; } 编译和执行结果：\n1 2 3 4 5 6 7 8 9 10 11 $ gcc -o main main.c $ ./main size: 12 Bytes old: 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 new: 0x01 0x00 0x34 0x12 0x78 0x56 0x00 0x00 0xdd 0xcc 0xbb 0xaa 可以发现，打印出来的结果和上面的是一致的。\n后面再说数据为什么是 0x34 0x12 而不是 0x12 0x34。\n2. 更改对齐规则一：#pragma pack(n) 2.1. 说明 用于限制结构体、联合体成员的最大对齐边界，即强制结构体内部成员按照 min(自然对齐, n) 的方式对齐。\n结构体中第一个成员放在 offset 为 0 的地方，接下来每个成员的对齐，使用的是 n 和自身长度中较小的那个值。\n假设设置的是 4 字节对齐，但是成员的自身长度是 2 字节，那么该成员的对齐就是 2 字节对齐\n结构体中的所有成员对齐完成后，结构体本身也要对齐，使用的是 n 和结构体中最大的成员长度中较小的那个值。\n假设设置的是 8 字节对齐，但是结构体中最长的成员长度是 4 字节，那么这个结构体还是使用 4 字节对齐\n2.2. 常见用法 1 2 3 4 5 6 7 8 /* 获取编译器当前的对齐方式 */ #pragma pack(show) /* 设置对齐的方式为 n 字节对齐, 这个 n 的常用的取值有: 1, 2, 4, 8, 16 */ #pragma pack(n) /* 取消自定义的对齐方式, 恢复为默认 */ #pragma pack() 用法：\n1 2 3 4 5 #pragma pack(1) struct { ... }; #pragma pack() 2.3. 示例一 1 2 3 4 5 6 7 8 #pragma pack(1) typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_t; #pragma pack() 该结构体的大小是 9 Bytes，内存的使用空间如下：\n1 2 3 4 5 6 7 +---+---+---+---+ | a | b | c | +---+---+---+---+ | c | d | +---+---+---+---+ | d | +---+ 使用相同的代码进行测试，编译和执行结果：\n1 2 3 4 5 6 7 8 9 10 11 $ gcc -o main main.c $ ./main size: 9 Bytes old: 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 new: 0x01 0x34 0x12 0x78 0x56 0xdd 0xcc 0xbb 0xaa a 的长度是 1，n = 1，取其中较小那个，也就是 1。 b 的长度是 2，n = 1，取其中较小那个，也就是 1。 c 的长度是 2，n = 1，取其中较小那个，也就是 1。 d 的长度是 4，n = 1，取其中较小那个，也就是 1。 结构体中最大成员的长度是 4，n = 1，取其中较小那个，也就是 1。 2.4. 示例二 1 2 3 4 5 6 7 8 #pragma pack(8) typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_t; #pragma pack() 该结构体的大小是 12 Bytes，内存的使用空间如下：\n1 2 3 4 5 6 7 +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ 使用相同的代码进行测试，编译和执行结果：\n1 2 3 4 5 6 7 8 9 10 11 $ gcc -o main main.c $ ./main size: 12 Bytes old: 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 new: 0x01 0x00 0x34 0x12 0x78 0x56 0x00 0x00 0xdd 0xcc 0xbb 0xaa a 的长度是 1，n = 8，取其中较小那个，也就是 1。 b 的长度是 2，n = 8，取其中较小那个，也就是 2。 c 的长度是 2，n = 8，取其中较小那个，也就是 2。 d 的长度是 4，n = 8，取其中较小那个，也就是 4。 结构体中最大成员的长度是 4，n = 8，取其中较小那个，也就是 4。 2.5. 示例三 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 #pragma pack(1) typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_item_t; #pragma pack() #pragma pack(8) typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; struct_demo_item_t demo; } struct_demo_t; #pragma pack() 这个结构体的大小是 24 字节，内存的使用空间如下：\n1 2 3 4 5 6 7 8 9 10 11 12 13 +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ | a | b | c | +---+---+---+---+ | c | d | +---+---+---+---+ | d | | +---+-----------+ 测试代码的赋值为：\n1 2 3 4 5 6 7 8 9 demo.a = 0x01; demo.b = 0x1234; demo.c = 0x5678; demo.d = 0xaabbccdd; demo.demo.a = 0x10; demo.demo.b = 0x4321; demo.demo.c = 0x8765; demo.demo.d = 0xddccbbaa; 使用相同的代码进行测试，编译和执行结果：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 $ gcc -o main main.c $ ./main size: 24 Bytes old: 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 new: 0x01 0x00 0x34 0x12 0x78 0x56 0x00 0x00 0xdd 0xcc 0xbb 0xaa 0x10 0x21 0x43 0x65 0x87 0xaa 0xbb 0xcc 0xdd 0x00 0x00 0x00 2.6. 示例四 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } struct_demo_item_t; #pragma pack(8) typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; struct_demo_item_t demo; } struct_demo_t; #pragma pack() 这个结构体的大小是 24 字节，内存的使用空间如下：\n1 2 3 4 5 6 7 8 9 10 11 12 13 +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ | a | | b | +---+---+---+---+ | c | | +---+---+---+---+ | d | +---+---+---+---+ 测试代码的赋值为：\n1 2 3 4 5 6 7 8 9 demo.a = 0x01; demo.b = 0x1234; demo.c = 0x5678; demo.d = 0xaabbccdd; demo.demo.a = 0x10; demo.demo.b = 0x4321; demo.demo.c = 0x8765; demo.demo.d = 0xddccbbaa; 使用相同的代码进行测试，编译和执行结果：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 $ gcc -o main main.c $ ./main size: 24 Bytes old: 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 new: 0x01 0x00 0x34 0x12 0x78 0x56 0x00 0x00 0xdd 0xcc 0xbb 0xaa 0x10 0x00 0x21 0x43 0x65 0x87 0x00 0x00 0xaa 0xbb 0xcc 0xdd 3. 更改对齐规则二：__attribute__((__aligned(n))) 3.1. 说明 __attribute__((__aligned(n))) 通常用于指定某个特定变量或类型的最小对齐字节数，也就是说，该变量或类型的起始地址将是 n 的倍数。\nn 必须是 2 的幂。\n该指令是 GCC 编译器特有的属性语法（当前 Clang 已支持）。\n3.2. 常见用法 1 2 /* 设置对齐的方式为 n 字节对齐, 这个 n 的常用的取值有: 1, 2, 4, 8, 16 */ __attribute__((aligned(n))) 用法：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 typedef struct { ... } __attribute__((aligned(4))) demo_1; struct __attribute__((aligned(4))) demo_2 { ... }; struct demo_3 { ... uint32_t param __attribute__((aligned(8))); }; uint16_t var1 __attribute__((aligned(8))) = 0; uint16_t array[3] __attribute__ ((aligned(8))); 3.3. 示例一 1 2 3 4 5 6 typedef struct { uint8_t a; uint16_t b; uint16_t c; uint32_t d; } __attribute__((__aligned__(8))) struct_demo_t; 这个结构体的大小是 16 字节，内存的使用空间如下：\n1 2 3 4 5 6 7 8 9 +---+---+---+---+ | a | | +---+---+---+---+ | b | c | +---+---+---+---+ | d | +---+---+---+---+ | | +---+---+---+---+ 使用相同的代码进行测试，编译和执行结果：\n1 2 3 4 5 6 7 8 9 10 11 12 $ gcc -o main main.c $ ./main old: 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 new: 0x01 0x00 0x34 0x12 0x78 0x56 0x00 0x00 0xdd 0xcc 0xbb 0xaa 0x00 0x00 0x00 0x00 结构体的大小是 12 字节，但是要 8 字节对齐，所以实际上 16 字节，使用 4 字节的填充。\n二、结构体的大小端 1. 大小端的说明 大端（Big-Endian）\n高位字节存放在低地址，低位字节存放在高地址。\n1 2 3 4 5 6 7 8 9 10 11 /** * 将数值 0x12345678 放入数组 * (从高位到地位分别是 0x12 0x34 0x56 0x78) */ uint8_t buf[] = {0x12, 0x34, 0x56, 0x78}; /** * 此时 buf[0] = 0x12, 刚好满足: 高位字节存放在低地址 * 此时 buf[3] = 0x78, 刚好满足: 低位字节存放在高地址 */ 小端（Little-Endian）\n低位字节存放在低地址，高位字节存放在高地址。\n1 2 3 4 5 6 7 8 9 10 11 /** * 将数值 0x12345678 放入数组 * (从高位到地位分别是 0x12 0x34 0x56 0x78) */ uint8_t buf[] = {0x78, 0x56, 0x34, 0x12}; /** * 此时 buf[0] = 0x78, 刚好满足: 低位字节存放在低地址 * 此时 buf[3] = 0x12, 刚好满足: 高位字节存放在高地址 */ 一般来说，x86 / x86-64、ARM 都是使用小端，PowerPC、网络通信都是使用大端。\n2. 单字节大小的联合体 如果结构体使用位域的话，需要注意大小端。\n在小端架构上：\nGCC/Clang 通常将结构体里面先声明的位域放在低位。\n在大端架构上：\n结构体里面先声明的位域可能放在高位。\n具体取决于编译器。\n代码测试：\n测试环境：Windows 10 + MSYS2 + GCC 13.3.0\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 #include #include typedef union { uint8_t byte; struct { uint8_t head : 3; uint8_t body : 4; uint8_t end : 1; } data; } demo_t; int main(int argc, char *argv[]) { demo_t demo; demo.byte = 0b11110011; printf(\"byte: %d\\r\\n\", demo.byte); printf(\"head: %d\\r\\n\", demo.data.head); printf(\"body: %d\\r\\n\", demo.data.body); printf(\"end: %d\\r\\n\", demo.data.end); return 0; } 我们期望的结果是这样的：\nhead = 0b111，即 7。 body = 0b1001，即 9。 end = 0b1，即 1。 实际结果是：\n1 2 3 4 5 6 $ gcc -o main main.c $ ./main byte: 243 head: 3 body: 14 end: 1 也就是说，由于 GCC 把先声明的位于放到低位，所以：\nhead = 0b011，即 3。 body = 0b1110，即 14。 end = 0b1，即 1。 为了解决需求，我们需要修改结构体：\n1 2 3 4 5 6 7 8 typedef union { uint8_t byte; struct { uint8_t end : 1; uint8_t body : 4; uint8_t head : 3; } data; } demo_t; 这时候打印的结果才是我们期望的：\n1 2 3 4 5 6 $ gcc -o main main.c $ ./main byte: 243 head: 7 body: 9 end: 1 三、结构体和联合体 1. 通信协议 假如通信协议如下：\n1 2 3 4 Byte 3 4 2 1 54 +--------+----------+---------+-----+---------+ | header | magic id | version | pad | payload | +--------+----------+---------+-----+---------+ 那么我们可以这样定义结构体：\n1 2 3 4 5 6 7 8 9 10 11 12 #pragma pack(1) typedef union { uint8_t data[64]; struct { uint8_t header[3]; uint32_t magic_id; uint16_t version; uint8_t pad; uint8_t payload[54]; } frame; } frame_t; #pragma pack() 那么我们就可以这样使用：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 frame_t frame; /* 单独赋值 */ frame.frame.header[0] = 0x11; frame.frame.header[1] = 0x22; frame.frame.header[2] = 0x33; frame.frame.magic_id = 0xaabbccdd; /* 操作缓冲区 (注意溢出) */ uint8_t src_data[4] = {0x12, 0x00, 0x00, 0x00}; memcpy(frame.frame.data, src_data, 4); /* 操作数据完成后, 保存到发送缓冲区 */ uint8_t *send_buf = (uint8_t *)malloc(1024); if (send_buf != NULL) { memcpy(send_buf, frame.data, sizeof(frame.data)/sizeof(frame.data[0])); } 版权声明\n本文为「Zeepunt 日常随笔」的原创文章，遵循 CC BY-NC-ND 4.0 许可协议。允许在署名作者、注明原文链接且不作任何更改的前提下非商业性地分享本文。\r原文链接：https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/\r","wordCount":"1746","inLanguage":"zh-cn","datePublished":"2025-10-27T21:14:07+08:00","dateModified":"2025-10-27T21:14:07+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/"},"publisher":{"@type":"Organization","name":"Zeepunt 日常随笔","logo":{"@type":"ImageObject","url":"https://zeepunt.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://zeepunt.github.io/ accesskey=h title="Zeepunt 日常随笔 (Alt + H)">Zeepunt 日常随笔</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://zeepunt.github.io/search/ title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://zeepunt.github.io/archives/ title=归档><span>归档</span></a></li><li><a href=https://zeepunt.github.io/article/ title=文章><span>文章</span></a></li><li><a href=https://zeepunt.github.io/tags/ title=标签><span>标签</span></a></li><li><a href=https://github.com/Zeepunt title=Github><span>Github</span>&nbsp;
+<svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">【C】结构体的使用</h1><div class=post-meta><span title='2025-10-27 21:14:07 +0800 +0800'>October 27, 2025</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>1746 words</span><div class=meta-item>阅读量 <span id=busuanzi_value_page_pv></div></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details open><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#%e4%b8%80%e7%bb%93%e6%9e%84%e4%bd%93%e5%af%b9%e9%bd%90 aria-label=一、结构体对齐>一、结构体对齐</a><ul><li><a href=#1-%e9%bb%98%e8%ae%a4%e5%af%b9%e9%bd%90%e8%a7%84%e5%88%99 aria-label="1. 默认对齐规则">1. 默认对齐规则</a><ul><li><a href=#11-%e8%a7%84%e5%88%99 aria-label="1.1. 规则">1.1. 规则</a></li><li><a href=#12-%e7%a4%ba%e4%be%8b aria-label="1.2. 示例">1.2. 示例</a></li></ul></li><li><a href=#2-%e6%9b%b4%e6%94%b9%e5%af%b9%e9%bd%90%e8%a7%84%e5%88%99%e4%b8%80pragma-packn aria-label="2. 更改对齐规则一：#pragma pack(n)">2. 更改对齐规则一：<code>#pragma pack(n)</code></a><ul><li><a href=#21-%e8%af%b4%e6%98%8e aria-label="2.1. 说明">2.1. 说明</a></li><li><a href=#22-%e5%b8%b8%e8%a7%81%e7%94%a8%e6%b3%95 aria-label="2.2. 常见用法">2.2. 常见用法</a></li><li><a href=#23-%e7%a4%ba%e4%be%8b%e4%b8%80 aria-label="2.3. 示例一">2.3. 示例一</a></li><li><a href=#24-%e7%a4%ba%e4%be%8b%e4%ba%8c aria-label="2.4. 示例二">2.4. 示例二</a></li><li><a href=#25-%e7%a4%ba%e4%be%8b%e4%b8%89 aria-label="2.5. 示例三">2.5. 示例三</a></li><li><a href=#26-%e7%a4%ba%e4%be%8b%e5%9b%9b aria-label="2.6. 示例四">2.6. 示例四</a></li></ul></li><li><a href=#3-%e6%9b%b4%e6%94%b9%e5%af%b9%e9%bd%90%e8%a7%84%e5%88%99%e4%ba%8c__attribute____alignedn aria-label="3. 更改对齐规则二：__attribute__((__aligned(n)))">3. 更改对齐规则二：<code>__attribute__((__aligned(n)))</code></a><ul><li><a href=#31-%e8%af%b4%e6%98%8e aria-label="3.1. 说明">3.1. 说明</a></li><li><a href=#32-%e5%b8%b8%e8%a7%81%e7%94%a8%e6%b3%95 aria-label="3.2. 常见用法">3.2. 常见用法</a></li><li><a href=#33-%e7%a4%ba%e4%be%8b%e4%b8%80 aria-label="3.3. 示例一">3.3. 示例一</a></li></ul></li></ul></li><li><a href=#%e4%ba%8c%e7%bb%93%e6%9e%84%e4%bd%93%e7%9a%84%e5%a4%a7%e5%b0%8f%e7%ab%af aria-label=二、结构体的大小端>二、结构体的大小端</a><ul><li><a href=#1-%e5%a4%a7%e5%b0%8f%e7%ab%af%e7%9a%84%e8%af%b4%e6%98%8e aria-label="1. 大小端的说明">1. 大小端的说明</a></li><li><a href=#2-%e5%8d%95%e5%ad%97%e8%8a%82%e5%a4%a7%e5%b0%8f%e7%9a%84%e8%81%94%e5%90%88%e4%bd%93 aria-label="2. 单字节大小的联合体">2. 单字节大小的联合体</a></li></ul></li><li><a href=#%e4%b8%89%e7%bb%93%e6%9e%84%e4%bd%93%e5%92%8c%e8%81%94%e5%90%88%e4%bd%93 aria-label=三、结构体和联合体>三、结构体和联合体</a><ul><li><a href=#1-%e9%80%9a%e4%bf%a1%e5%8d%8f%e8%ae%ae aria-label="1. 通信协议">1. 通信协议</a></li></ul></li></ul></div></details></div></aside><script>let activeElement,elements;window.addEventListener("DOMContentLoaded",function(){checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),activeElement=elements[0];const t=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${t}"]`).classList.add("active")},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{activeElement||=Array.from(elements).find(e=>{if(getOffsetTop(e)-window.pageYOffset>0&&getOffsetTop(e)-window.pageYOffset<window.innerHeight/2)return e}),elements.forEach(e=>{const t=encodeURI(e.getAttribute("id")).toLowerCase();e===activeElement?document.querySelector(`.inner ul li a[href="#${t}"]`).classList.add("active"):document.querySelector(`.inner ul li a[href="#${t}"]`).classList.remove("active")})},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h1 id=一结构体对齐>一、结构体对齐<a hidden class=anchor aria-hidden=true href=#一结构体对齐>#</a></h1><h2 id=1-默认对齐规则>1. 默认对齐规则<a hidden class=anchor aria-hidden=true href=#1-默认对齐规则>#</a></h2><h3 id=11-规则>1.1. 规则<a hidden class=anchor aria-hidden=true href=#11-规则>#</a></h3><ol><li><p>数据类型自身的对齐值</p><p><code>int8_t / uint8_t</code> 型：1 字节。</p><p><code>int16_t / uint16_t</code> 型：2 字节。</p><p><code>int32_t / uint32_t / float</code> 型：4 字节。</p><p><code>double</code> 型：8 字节。</p></li><li><p>结构体的自身对齐值</p><p>其成员中自身对齐值最大的那个值。</p></li><li><p>数据成员、结构体的有效对齐值</p><p>自身对齐值和指定对齐值中较小者，即 <code>有效对齐值 = min(自身对齐值，当前指定的对齐值)</code>。</p></li></ol><h3 id=12-示例>1.2. 示例<a hidden class=anchor aria-hidden=true href=#12-示例>#</a></h3><p>假如结构体的声明如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>假设当前默认是 4 字节对齐，该结构体的大小是 12 Bytes，内存的使用空间如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   <span class=p>|</span>   b   <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>   c   <span class=p>|</span>       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>       d       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span></code></pre></td></tr></table></div></div><p>代码测试（<code>main.c</code>）：</p><blockquote><p>测试环境：Windows 10 + MSYS2 + GCC 13.3.0</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=o>*</span><span class=n>ptr</span> <span class=o>=</span> <span class=nb>NULL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>size_t</span> <span class=n>size</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>struct_demo_t</span> <span class=n>demo</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nf>memset</span><span class=p>(</span><span class=o>&amp;</span><span class=n>demo</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>demo</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 打印结构体大小 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>size</span> <span class=o>=</span> <span class=k>sizeof</span><span class=p>(</span><span class=kt>struct_demo_t</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;size: %d Bytes</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>ptr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>demo</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 打印结构体的内存信息 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;old:</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>size_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>size</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>((</span><span class=n>i</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=p>((</span><span class=n>i</span> <span class=o>%</span> <span class=mi>4</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;0x%02x &#34;</span><span class=p>,</span> <span class=n>ptr</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>a</span> <span class=o>=</span> <span class=mh>0x01</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>b</span> <span class=o>=</span> <span class=mh>0x1234</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>c</span> <span class=o>=</span> <span class=mh>0x5678</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>d</span> <span class=o>=</span> <span class=mh>0xaabbccdd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 赋值后, 打印结构体的内存信息 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;new:</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>size_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>size</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>((</span><span class=n>i</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=p>((</span><span class=n>i</span> <span class=o>%</span> <span class=mi>4</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;0x%02x &#34;</span><span class=p>,</span> <span class=n>ptr</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>编译和执行结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>size: <span class=m>12</span> Bytes
+</span></span><span class=line><span class=cl>old:
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>new:
+</span></span><span class=line><span class=cl>0x01 0x00 0x34 0x12
+</span></span><span class=line><span class=cl>0x78 0x56 0x00 0x00
+</span></span><span class=line><span class=cl>0xdd 0xcc 0xbb 0xaa
+</span></span></code></pre></td></tr></table></div></div><p>可以发现，打印出来的结果和上面的是<strong>一致</strong>的。</p><blockquote><p>后面再说数据为什么是 0x34 0x12 而不是 0x12 0x34。</p></blockquote><h2 id=2-更改对齐规则一pragma-packn>2. 更改对齐规则一：<code>#pragma pack(n)</code><a hidden class=anchor aria-hidden=true href=#2-更改对齐规则一pragma-packn>#</a></h2><h3 id=21-说明>2.1. 说明<a hidden class=anchor aria-hidden=true href=#21-说明>#</a></h3><p>用于限制结构体、联合体成员的最大对齐边界，即强制结构体内部成员按照 <font color=red><code>min(自然对齐, n)</code></font> 的方式对齐。</p><ol><li><p>结构体中第一个成员放在 offset 为 0 的地方，接下来每个成员的对齐，使用的是 n 和自身长度中<strong>较小</strong>的那个值。</p><blockquote><p>假设设置的是 4 字节对齐，但是成员的自身长度是 2 字节，那么该成员的对齐就是 2 字节对齐</p></blockquote></li><li><p>结构体中的所有成员对齐完成后，结构体本身也要对齐，使用的是 n 和结构体中最大的成员长度中<strong>较小</strong>的那个值。</p><blockquote><p>假设设置的是 8 字节对齐，但是结构体中最长的成员长度是 4 字节，那么这个结构体还是使用 4 字节对齐</p></blockquote></li></ol><h3 id=22-常见用法>2.2. 常见用法<a hidden class=anchor aria-hidden=true href=#22-常见用法>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* 获取编译器当前的对齐方式 */</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack(show)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* 设置对齐的方式为 n 字节对齐, 这个 n 的常用的取值有: 1, 2, 4, 8, 16 */</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack(n)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* 取消自定义的对齐方式, 恢复为默认 */</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><p>用法：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#pragma pack(1)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=23-示例一>2.3. 示例一<a hidden class=anchor aria-hidden=true href=#23-示例一>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#pragma pack(1)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><p>该结构体的大小是 9 Bytes，内存的使用空间如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   b   <span class=p>|</span> c <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> c <span class=p>|</span>     d     <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> d <span class=p>|</span>          
+</span></span><span class=line><span class=cl>+---+
+</span></span></code></pre></td></tr></table></div></div><p>使用相同的代码进行测试，编译和执行结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>size: <span class=m>9</span> Bytes
+</span></span><span class=line><span class=cl>old:
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00
+</span></span><span class=line><span class=cl>new:
+</span></span><span class=line><span class=cl>0x01 0x34 0x12 0x78
+</span></span><span class=line><span class=cl>0x56 0xdd 0xcc 0xbb
+</span></span><span class=line><span class=cl>0xaa
+</span></span></code></pre></td></tr></table></div></div><ol><li>a 的长度是 1，n = 1，取其中较小那个，也就是 1。</li><li>b 的长度是 2，n = 1，取其中较小那个，也就是 1。</li><li>c 的长度是 2，n = 1，取其中较小那个，也就是 1。</li><li>d 的长度是 4，n = 1，取其中较小那个，也就是 1。</li><li>结构体中最大成员的长度是 4，n = 1，取其中较小那个，也就是 1。</li></ol><h3 id=24-示例二>2.4. 示例二<a hidden class=anchor aria-hidden=true href=#24-示例二>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#pragma pack(8)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><p>该结构体的大小是 12 Bytes，内存的使用空间如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   <span class=p>|</span>   b   <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>   c   <span class=p>|</span>       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>       d       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span></code></pre></td></tr></table></div></div><p>使用相同的代码进行测试，编译和执行结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>size: <span class=m>12</span> Bytes
+</span></span><span class=line><span class=cl>old:
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>new:
+</span></span><span class=line><span class=cl>0x01 0x00 0x34 0x12
+</span></span><span class=line><span class=cl>0x78 0x56 0x00 0x00
+</span></span><span class=line><span class=cl>0xdd 0xcc 0xbb 0xaa
+</span></span></code></pre></td></tr></table></div></div><ol><li>a 的长度是 1，n = 8，取其中较小那个，也就是 1。</li><li>b 的长度是 2，n = 8，取其中较小那个，也就是 2。</li><li>c 的长度是 2，n = 8，取其中较小那个，也就是 2。</li><li>d 的长度是 4，n = 8，取其中较小那个，也就是 4。</li><li>结构体中最大成员的长度是 4，n = 8，取其中较小那个，也就是 4。</li></ol><h3 id=25-示例三>2.5. 示例三<a hidden class=anchor aria-hidden=true href=#25-示例三>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#pragma pack(1)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_item_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack(8)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>struct_demo_item_t</span> <span class=n>demo</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><p>这个结构体的大小是 24 字节，内存的使用空间如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   <span class=p>|</span>   b   <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>   c   <span class=p>|</span>       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>       d       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   b   <span class=p>|</span> c <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> c <span class=p>|</span>     d     <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> d <span class=p>|</span>           <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+-----------+
+</span></span></code></pre></td></tr></table></div></div><p>测试代码的赋值为：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>a</span> <span class=o>=</span> <span class=mh>0x01</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>b</span> <span class=o>=</span> <span class=mh>0x1234</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>c</span> <span class=o>=</span> <span class=mh>0x5678</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>d</span> <span class=o>=</span> <span class=mh>0xaabbccdd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>a</span> <span class=o>=</span> <span class=mh>0x10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>b</span> <span class=o>=</span> <span class=mh>0x4321</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>c</span> <span class=o>=</span> <span class=mh>0x8765</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>d</span> <span class=o>=</span> <span class=mh>0xddccbbaa</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>使用相同的代码进行测试，编译和执行结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>size: 24 Bytes
+</span></span><span class=line><span class=cl>old:
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>new:
+</span></span><span class=line><span class=cl>0x01 0x00 0x34 0x12
+</span></span><span class=line><span class=cl>0x78 0x56 0x00 0x00
+</span></span><span class=line><span class=cl>0xdd 0xcc 0xbb 0xaa
+</span></span><span class=line><span class=cl>0x10 0x21 0x43 0x65
+</span></span><span class=line><span class=cl>0x87 0xaa 0xbb 0xcc
+</span></span><span class=line><span class=cl>0xdd 0x00 0x00 0x00
+</span></span></code></pre></td></tr></table></div></div><h3 id=26-示例四>2.6. 示例四<a hidden class=anchor aria-hidden=true href=#26-示例四>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_item_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack(8)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>struct_demo_item_t</span> <span class=n>demo</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><p>这个结构体的大小是 24 字节，内存的使用空间如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   <span class=p>|</span>   b   <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>   c   <span class=p>|</span>       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>       d       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>   <span class=p>|</span>   b   <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>   c   <span class=p>|</span>       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>       d       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span></code></pre></td></tr></table></div></div><p>测试代码的赋值为：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>a</span> <span class=o>=</span> <span class=mh>0x01</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>b</span> <span class=o>=</span> <span class=mh>0x1234</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>c</span> <span class=o>=</span> <span class=mh>0x5678</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>d</span> <span class=o>=</span> <span class=mh>0xaabbccdd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>a</span> <span class=o>=</span> <span class=mh>0x10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>b</span> <span class=o>=</span> <span class=mh>0x4321</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>c</span> <span class=o>=</span> <span class=mh>0x8765</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>demo</span><span class=p>.</span><span class=n>d</span> <span class=o>=</span> <span class=mh>0xddccbbaa</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>使用相同的代码进行测试，编译和执行结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>size: 24 Bytes
+</span></span><span class=line><span class=cl>old:
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>new:
+</span></span><span class=line><span class=cl>0x01 0x00 0x34 0x12
+</span></span><span class=line><span class=cl>0x78 0x56 0x00 0x00
+</span></span><span class=line><span class=cl>0xdd 0xcc 0xbb 0xaa
+</span></span><span class=line><span class=cl>0x10 0x00 0x21 0x43
+</span></span><span class=line><span class=cl>0x65 0x87 0x00 0x00
+</span></span><span class=line><span class=cl>0xaa 0xbb 0xcc 0xdd
+</span></span></code></pre></td></tr></table></div></div><h2 id=3-更改对齐规则二__attribute____alignedn>3. 更改对齐规则二：<code>__attribute__((__aligned(n)))</code><a hidden class=anchor aria-hidden=true href=#3-更改对齐规则二__attribute____alignedn>#</a></h2><h3 id=31-说明>3.1. 说明<a hidden class=anchor aria-hidden=true href=#31-说明>#</a></h3><p><code>__attribute__((__aligned(n)))</code> 通常用于指定某个特定变量或类型的<font color=red>最小对齐字节数</font>，也就是说，该变量或类型的起始地址将是 <code>n</code> 的倍数。</p><blockquote><p>n 必须是 2 的幂。</p></blockquote><p>该指令是 GCC 编译器<strong>特有的属性语法</strong>（当前 Clang 已支持）。</p><h3 id=32-常见用法>3.2. 常见用法<a hidden class=anchor aria-hidden=true href=#32-常见用法>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* 设置对齐的方式为 n 字节对齐, 这个 n 的常用的取值有: 1, 2, 4, 8, 16 */</span>
+</span></span><span class=line><span class=cl><span class=nf>__attribute__</span><span class=p>((</span><span class=nf>aligned</span><span class=p>(</span><span class=n>n</span><span class=p>)))</span>
+</span></span></code></pre></td></tr></table></div></div><p>用法：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=nf>__attribute__</span><span class=p>((</span><span class=nf>aligned</span><span class=p>(</span><span class=mi>4</span><span class=p>)))</span> <span class=n>demo_1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nf>__attribute__</span><span class=p>((</span><span class=nf>aligned</span><span class=p>(</span><span class=mi>4</span><span class=p>)))</span> <span class=n>demo_2</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>struct</span> <span class=n>demo_3</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>param</span> <span class=nf>__attribute__</span><span class=p>((</span><span class=nf>aligned</span><span class=p>(</span><span class=mi>8</span><span class=p>)));</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint16_t</span> <span class=n>var1</span> <span class=nf>__attribute__</span><span class=p>((</span><span class=nf>aligned</span><span class=p>(</span><span class=mi>8</span><span class=p>)))</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint16_t</span> <span class=n>array</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span> <span class=nf>__attribute__</span> <span class=p>((</span><span class=nf>aligned</span><span class=p>(</span><span class=mi>8</span><span class=p>)));</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=33-示例一>3.3. 示例一<a hidden class=anchor aria-hidden=true href=#33-示例一>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>a</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=nf>__attribute__</span><span class=p>((</span><span class=nf>__aligned__</span><span class=p>(</span><span class=mi>8</span><span class=p>)))</span> <span class=kt>struct_demo_t</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>这个结构体的大小是 16 字节，内存的使用空间如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span> a <span class=p>|</span>           <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>   b   <span class=p>|</span>   c   <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>       d       <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span><span class=line><span class=cl><span class=p>|</span>               <span class=p>|</span>
+</span></span><span class=line><span class=cl>+---+---+---+---+
+</span></span></code></pre></td></tr></table></div></div><p>使用相同的代码进行测试，编译和执行结果：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>old:
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span><span class=line><span class=cl>new:
+</span></span><span class=line><span class=cl>0x01 0x00 0x34 0x12
+</span></span><span class=line><span class=cl>0x78 0x56 0x00 0x00
+</span></span><span class=line><span class=cl>0xdd 0xcc 0xbb 0xaa
+</span></span><span class=line><span class=cl>0x00 0x00 0x00 0x00
+</span></span></code></pre></td></tr></table></div></div><p>结构体的大小是 12 字节，但是要 8 字节对齐，所以实际上 16 字节，使用 4 字节的填充。</p><h1 id=二结构体的大小端>二、结构体的大小端<a hidden class=anchor aria-hidden=true href=#二结构体的大小端>#</a></h1><h2 id=1-大小端的说明>1. 大小端的说明<a hidden class=anchor aria-hidden=true href=#1-大小端的说明>#</a></h2><ul><li><p>大端（Big-Endian）</p><p><strong>高位字节存放在低地址</strong>，低位字节存放在高地址。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * 将数值 0x12345678 放入数组
+</span></span></span><span class=line><span class=cl><span class=cm> * (从高位到地位分别是 0x12 0x34 0x56 0x78)
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> <span class=p>{</span><span class=mh>0x12</span><span class=p>,</span> <span class=mh>0x34</span><span class=p>,</span> <span class=mh>0x56</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * 此时 buf[0] = 0x12, 刚好满足: 高位字节存放在低地址
+</span></span></span><span class=line><span class=cl><span class=cm> * 此时 buf[3] = 0x78, 刚好满足: 低位字节存放在高地址
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>小端（Little-Endian）</p><p><strong>低位字节存放在低地址</strong>，高位字节存放在高地址。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * 将数值 0x12345678 放入数组
+</span></span></span><span class=line><span class=cl><span class=cm> * (从高位到地位分别是 0x12 0x34 0x56 0x78)
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> <span class=p>{</span><span class=mh>0x78</span><span class=p>,</span> <span class=mh>0x56</span><span class=p>,</span> <span class=mh>0x34</span><span class=p>,</span> <span class=mh>0x12</span><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * 此时 buf[0] = 0x78, 刚好满足: 低位字节存放在低地址
+</span></span></span><span class=line><span class=cl><span class=cm> * 此时 buf[3] = 0x12, 刚好满足: 高位字节存放在高地址
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><p>一般来说，x86 / x86-64、ARM 都是使用小端，PowerPC、网络通信都是使用大端。</p><h2 id=2-单字节大小的联合体>2. 单字节大小的联合体<a hidden class=anchor aria-hidden=true href=#2-单字节大小的联合体>#</a></h2><p>如果结构体使用<strong>位域</strong>的话，需要注意大小端。</p><ul><li><p>在小端架构上：</p><p>GCC/Clang 通常将结构体里面<font color=red>先声明的位域放在低位</font>。</p></li><li><p>在大端架构上：</p><p>结构体里面先声明的位域<strong>可能</strong>放在高位。</p></li></ul><p>具体取决于编译器。</p><p>代码测试：</p><blockquote><p>测试环境：Windows 10 + MSYS2 + GCC 13.3.0</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=k>union</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>byte</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=nl>head</span> <span class=p>:</span> <span class=mi>3</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=nl>body</span> <span class=p>:</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=nl>end</span>  <span class=p>:</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>demo_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>demo_t</span> <span class=n>demo</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>demo</span><span class=p>.</span><span class=n>byte</span> <span class=o>=</span> <span class=mi>0</span><span class=n>b11110011</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;byte: %d</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>demo</span><span class=p>.</span><span class=n>byte</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;head: %d</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>demo</span><span class=p>.</span><span class=n>data</span><span class=p>.</span><span class=n>head</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;body: %d</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>demo</span><span class=p>.</span><span class=n>data</span><span class=p>.</span><span class=n>body</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;end: %d</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span>  <span class=n>demo</span><span class=p>.</span><span class=n>data</span><span class=p>.</span><span class=n>end</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>我们期望的结果是这样的：</p><ol><li>head = 0b111，即 7。</li><li>body = 0b1001，即 9。</li><li>end = 0b1，即 1。</li></ol><p>实际结果是：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>byte: <span class=m>243</span>
+</span></span><span class=line><span class=cl>head: <span class=m>3</span>
+</span></span><span class=line><span class=cl>body: <span class=m>14</span>
+</span></span><span class=line><span class=cl>end: <span class=m>1</span>
+</span></span></code></pre></td></tr></table></div></div><p>也就是说，由于 GCC 把先声明的位于放到低位，所以：</p><ol><li>head = 0b011，即 3。</li><li>body = 0b1110，即 14。</li><li>end = 0b1，即 1。</li></ol><p>为了解决需求，我们需要修改结构体：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>union</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>byte</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=nl>end</span>  <span class=p>:</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=nl>body</span> <span class=p>:</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=nl>head</span> <span class=p>:</span> <span class=mi>3</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>demo_t</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>这时候打印的结果才是我们期望的：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ gcc -o main main.c
+</span></span><span class=line><span class=cl>$ ./main
+</span></span><span class=line><span class=cl>byte: <span class=m>243</span>
+</span></span><span class=line><span class=cl>head: <span class=m>7</span>
+</span></span><span class=line><span class=cl>body: <span class=m>9</span>
+</span></span><span class=line><span class=cl>end: <span class=m>1</span>
+</span></span></code></pre></td></tr></table></div></div><h1 id=三结构体和联合体>三、结构体和联合体<a hidden class=anchor aria-hidden=true href=#三结构体和联合体>#</a></h1><h2 id=1-通信协议>1. 通信协议<a hidden class=anchor aria-hidden=true href=#1-通信协议>#</a></h2><p>假如通信协议如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>Byte    <span class=m>3</span>         <span class=m>4</span>          <span class=m>2</span>       <span class=m>1</span>      <span class=m>54</span>
+</span></span><span class=line><span class=cl>    +--------+----------+---------+-----+---------+
+</span></span><span class=line><span class=cl>    <span class=p>|</span> header <span class=p>|</span> magic id <span class=p>|</span> version <span class=p>|</span> pad <span class=p>|</span> payload <span class=p>|</span>
+</span></span><span class=line><span class=cl>    +--------+----------+---------+-----+---------+
+</span></span></code></pre></td></tr></table></div></div><p>那么我们可以这样定义结构体：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#pragma pack(1)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=k>typedef</span> <span class=k>union</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>data</span><span class=p>[</span><span class=mi>64</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=n>header</span><span class=p>[</span><span class=mi>3</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint32_t</span> <span class=n>magic_id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint16_t</span> <span class=n>version</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=n>pad</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint8_t</span> <span class=n>payload</span><span class=p>[</span><span class=mi>54</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=n>frame</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=kt>frame_t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#pragma pack()
+</span></span></span></code></pre></td></tr></table></div></div><p>那么我们就可以这样使用：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>frame_t</span> <span class=n>frame</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* 单独赋值 */</span>
+</span></span><span class=line><span class=cl><span class=n>frame</span><span class=p>.</span><span class=n>frame</span><span class=p>.</span><span class=n>header</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mh>0x11</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>frame</span><span class=p>.</span><span class=n>frame</span><span class=p>.</span><span class=n>header</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mh>0x22</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>frame</span><span class=p>.</span><span class=n>frame</span><span class=p>.</span><span class=n>header</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=mh>0x33</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>frame</span><span class=p>.</span><span class=n>frame</span><span class=p>.</span><span class=n>magic_id</span> <span class=o>=</span> <span class=mh>0xaabbccdd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* 操作缓冲区 (注意溢出) */</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=n>src_data</span><span class=p>[</span><span class=mi>4</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mh>0x12</span><span class=p>,</span> <span class=mh>0x00</span><span class=p>,</span> <span class=mh>0x00</span><span class=p>,</span> <span class=mh>0x00</span><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=nf>memcpy</span><span class=p>(</span><span class=n>frame</span><span class=p>.</span><span class=n>frame</span><span class=p>.</span><span class=n>data</span><span class=p>,</span> <span class=n>src_data</span><span class=p>,</span> <span class=mi>4</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* 操作数据完成后, 保存到发送缓冲区 */</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=o>*</span><span class=n>send_buf</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=nf>malloc</span><span class=p>(</span><span class=mi>1024</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>send_buf</span> <span class=o>!=</span> <span class=nb>NULL</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>memcpy</span><span class=p>(</span><span class=n>send_buf</span><span class=p>,</span> <span class=n>frame</span><span class=p>.</span><span class=n>data</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>frame</span><span class=p>.</span><span class=n>data</span><span class=p>)</span><span class=o>/</span><span class=k>sizeof</span><span class=p>(</span><span class=n>frame</span><span class=p>.</span><span class=n>data</span><span class=p>[</span><span class=mi>0</span><span class=p>]));</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><div class=article-copyright style="background-color:#f5f5f5;border-left:4px solid #ff6b6b;padding:12px 16px;margin:24px 0;font-size:.9rem;color:#555;line-height:1.5"><p style=margin:0;font-weight:700>版权声明</p><p style="margin:4px 0 0">本文为「<a href=https://zeepunt.github.io/ target=_blank style=color:#0366d6>Zeepunt 日常随笔</a>」的原创文章，遵循<a href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank style=color:#0366d6> CC BY-NC-ND 4.0 </a>许可协议。允许在署名作者、注明原文链接且不作任何更改的前提下非商业性地分享本文。</p><p style="margin:4px 0 0">原文链接：<a href=https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/ target=_blank style=color:#0366d6;word-break:break-all>https://zeepunt.github.io/article/c/c%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E4%BD%BF%E7%94%A8/</a></p></div></div><footer class=post-footer><ul class=post-tags><li><a href=https://zeepunt.github.io/tags/c/>C</a></li></ul></footer></article></main><footer class=footer><span>&copy; 2026 <a href=https://zeepunt.github.io/>Zeepunt 日常随笔</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg></a><footer class=footer><div>网站总访客数<span id=vercount_value_site_uv></span>次
+网站总访问量<span id=vercount_value_site_pv></span>人次</div></footer><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>
